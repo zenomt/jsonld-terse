@@ -1,0 +1,71 @@
+<script src="jsonld-terse.js"></script>
+<script>
+var docUri;
+var rootUri;
+
+async function doLoad() {
+	try {
+		loadButton.disabled = true;
+		urlChanged();
+		expanded.innerText = inputDoc.innerText = "";
+		const response = await fetch(docUri, {
+			cache: "reload",
+			headers: { Accept: 'application/ld+json; profile="http://zenomt.com/ns/jsonld-terse"' }
+		});
+		triples.replaceChildren();
+		const rawText = await response.text();
+		inputDoc.innerText = rawText;
+		const doc = JSON.parse(rawText);
+		const graph = new com_zenomt_JSONLD_Terse(doc, { documentUri:docUri });
+		if(graph.get(rootUri))
+			graph.root = rootUri;
+		console.log("root", graph.root);
+		console.log("nodes", graph.nodes);
+		expanded.innerText = graph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked ? rootUri : null });
+		for(const each of graph.asTriples())
+		{
+			const tr = document.createElement("tr");
+			const sub = document.createElement("td");
+			sub.innerText = each.subject;
+			const pred = document.createElement("td");
+			pred.innerText = each.predicate;
+			const obj = document.createElement("td");
+			obj.innerText = JSON.stringify(each._object);
+			tr.appendChild(sub);
+			tr.appendChild(pred);
+			tr.appendChild(obj);
+			triples.appendChild(tr);
+		}
+	} catch(e) { expanded.innerText = e.toString(); }
+	loadButton.disabled = false;
+}
+
+function urlChanged() {
+	docUri = (new URL(docUrl.value || docUrl.placeholder, document.baseURI)).href;
+	baseOverride.placeholder = docUri;
+	rootUri = (new URL(baseOverride.value || docUri, docUri)).href;
+	computedRoot.value = rootUri;
+}
+
+</script>
+
+<title>Test JSON-LD Terse Profile</title>
+<body onload="urlChanged()">
+<h1>Test JSON-LD <a href="http://zenomt.com/ns/jsonld-terse">Terse Profile</a></h1>
+<button id="loadButton" onclick="doLoad()">Load &amp; Parse</button>
+<input type="checkbox" id="noArray" /><label for="noArray">noArray</label>
+<input type="checkbox" id="relative" /><label for="relative">relative</label>
+<input type="url" size="60" id="docUrl" title="JSON-LD-Terse Document URL" placeholder="https://zenomt.zenomt.com/card#me" value="example.jsonld#me" oninput="urlChanged()"/>
+<input type="url" size="60" id="baseOverride" title="Root URI Override Relative to Document" oninput="urlChanged()" />
+<input type="url" size="60" id="computedRoot" title="Computed Root URI" disabled="true"/>
+<h2>Input</h2>
+<pre id="inputDoc"></pre>
+<h2>Expanded As JSON-LD</h2>
+<pre id="expanded"></pre>
+<h2>Triples</h2>
+<table style="border-spacing: 1em 0px; text-align: left">
+	<thead> <tr> <th>Subject</th> <th>Predicate</th> <th>Object</th> </tr> </thead>
+	<tbody id="triples" style="font-family: monospace"></tbody>
+</table>
+
+</body>

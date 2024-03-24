@@ -1,0 +1,24 @@
+{
+    "@context": {
+        "@base":  "card",
+        "foaf":   "http://xmlns.com/foaf/0.1/",
+        "schema": "http://schema.org/",
+        "owl":    "http://www.w3.org/2002/07/owl#"
+    },
+    "@id": "#me",
+    "@type": ["foaf:Person", "schema:Person"],
+    "foaf:name": { "@value": "Michael Thornburgh", "@language": "en-us" },
+    "foaf:nick": "Mike",
+    "foaf:depiction": { "@id": "mike.jpg" },
+    "schema:worksFor": {
+        "@type": "schema:Corporation",
+        "schema:name": "Example Corp.",
+        "schema:employee": { "@id": "#me" }
+    },
+    "@included": [
+        { "@id": "", "@type": "foaf:PersonalProfileDocument", "foaf:primaryTopic": { "@id": "#me" } },
+        { "@id": "_:b86", "foaf:knows": { "@id": "_:b99" } },
+        { "@id": "_:b99", "foaf:knows": { "@id": "_:b86" } },
+        { "@id": "example.jsonld#me", "owl:sameAs": { "@id": "#me" } }
+    ]
+}
