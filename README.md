@@ -14,7 +14,7 @@ can’t be parsed to an RDF dataset. Popular implementations of the full JSON-LD
 toolset (such as [jsonld.js][]) comprise thousands of lines and hundreds (or
 thousands) of Kbytes of JavaScript.
 
-This project [proposes](terse.md) a simplified, constrained, backward-compatible
+[This project][] [proposes](terse.md) a simplified, constrained, backward-compatible
 profile of JSON-LD, inspired by [Turtle][] (Terse RDF Triple Language), called
 the [“`terse`” profile](terse.md). This profile is intended for pure Linked
 Data applications that don’t require compatibility with ad hoc JSON documents,
@@ -55,6 +55,7 @@ Copyright © 2024 Michael Thornburgh. All rights reserved.
   [Linked Data]: https://www.w3.org/wiki/LinkedData
   [RDF]: https://www.w3.org/RDF/
   [datasets]: https://www.w3.org/TR/rdf11-concepts/#section-dataset
+  [This project]: https://github.com/zenomt/jsonld-terse/
   [Turtle]: https://www.w3.org/TR/turtle/
   [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
   [test page]: test.html
