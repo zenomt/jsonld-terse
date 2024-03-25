@@ -37,7 +37,7 @@ transfer size of about 2000 bytes.
 
 The Terse profile is provisionally identified by the URI
 
-    https://zenomt.com/ns/jsonld-terse
+    http://zenomt.com/ns/jsonld-terse
 
 Terminology
 -----------

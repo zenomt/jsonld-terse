@@ -37,7 +37,7 @@ to URIs according to JavaScript’s [`URL`][URL api] API.
 
 The Terse profile is provisionally identified by the URI
 
-    https://zenomt.com/ns/jsonld-terse
+    http://zenomt.com/ns/jsonld-terse
 
 A [test page][] exercises the reference implementation.
 
