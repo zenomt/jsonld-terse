@@ -16,26 +16,26 @@ can’t be parsed to an RDF dataset. Popular implementations of the full JSON-LD
 toolset (such as [jsonld.js][]) comprise thousands of lines and hundreds (or
 thousands) of Kbytes of JavaScript.
 
-This memo proposes a simplified, constrained, backward-compatible profile of
-JSON-LD, inspired by [Turtle][] (Terse RDF Triple Language), called the
-“`terse`” profile. This profile removes external context references, keyword
-aliases, recursive Compact IRI prefix definitions, transformations, mappings,
-type coercions (except for the `@type` keyword itself), and multiple named
-[graphs][] per document. This profile is intended for pure Linked Data
-applications that don’t require compatibility with ad hoc JSON documents, and
-therefore don’t require the complexity of the full JSON-LD toolset. It leverages
-the ubiquity of JSON document parsers for all popular programming languages
-and environments, including web browsers, to eliminate the need for large
-lexical analyzer and parser implementations for the common RDF serialization
-formats (such as Turtle) typically used in pure Linked Data applications. It
-is intended to be easy for humans and computers to write and read conforming
-documents.
+This memo proposes the “Terse” profile, a simplified, constrained,
+backward-compatible profile of JSON-LD, inspired by
+[Turtle][] (Terse RDF Triple Language). The Terse profile removes external
+context references, keyword aliases, recursive Compact IRI prefix definitions,
+transformations, mappings, type coercions (except for the `@type` keyword
+itself), and multiple named [graphs][] per document. This profile is intended
+for pure Linked Data applications that don’t require compatibility with ad
+hoc JSON documents, and therefore don’t require the complexity of the full
+JSON-LD toolset. It leverages the ubiquity of JSON document parsers for all
+popular programming languages and environments, including web browsers, to
+eliminate the need to load large lexical analyzer and parser implementations
+for the common RDF serialization formats (such as Turtle) typically used in
+pure Linked Data applications. Conforming documents are intended to be easy
+for humans and computers to write and read.
 
 The [reference implementation][], which parses documents conforming to this
 profile, is about 200 lines of non-minified JavaScript with a compressed
 transfer size of about 2000 bytes.
 
-This profile is provisionally identified by the URI
+The Terse profile is provisionally identified by the URI
 
     https://zenomt.com/ns/jsonld-terse
 
@@ -129,7 +129,7 @@ Only the following JSON-LD keywords are recognized:
 
 Example 1
 ---------
-#### Graph Expressed as JSON-LD Terse
+#### Graph Expressed as Terse JSON-LD
 ```
 {
     "@context": {
@@ -221,7 +221,7 @@ Example 2
 }
 ```
 
-#### Same Graph Expressed as Idiomatic JSON-LD Terse
+#### Same Graph Expressed as Idiomatic Terse JSON-LD
 ```
 {
     "@context": {

@@ -14,17 +14,17 @@ can’t be parsed to an RDF dataset. Popular implementations of the full JSON-LD
 toolset (such as [jsonld.js][]) comprise thousands of lines and hundreds (or
 thousands) of Kbytes of JavaScript.
 
-[This project][] [proposes](terse.md) a simplified, constrained, backward-compatible
-profile of JSON-LD, inspired by [Turtle][] (Terse RDF Triple Language), called
-the [“`terse`” profile](terse.md). This profile is intended for pure Linked
-Data applications that don’t require compatibility with ad hoc JSON documents,
-and therefore don’t require the complexity of the full JSON-LD toolset. It
-leverages the ubiquity of JSON document parsers for most popular programming
-languages and environments, including web browsers, to eliminate the need for
-large lexical analyzer and parser implementations for the common RDF serialization
-formats (such as Turtle) typically used in pure Linked Data applications. It
-is intended to be easy for humans and computers to write and read conforming
-documents.
+[This project][] proposes the “[Terse](terse.md)” profile, a simplified,
+constrained, backward-compatible profile of JSON-LD, inspired by
+[Turtle][] (Terse RDF Triple Language). The Terse profile is intended for
+pure Linked Data applications that don’t require compatibility with ad hoc
+JSON documents, and therefore don’t require the complexity of the full JSON-LD
+toolset. It leverages the ubiquity of JSON document parsers for most popular
+programming languages and environments, including web browsers, to eliminate
+the need to load large lexical analyzer and parser implementations for the
+common RDF serialization formats (such as Turtle) typically used in pure
+Linked Data applications. Conforming documents are intended to be easy for
+humans and computers to write and read.
 
 The [reference implementation](jsonld-terse.js), which parses documents
 conforming to this profile, is about 200 lines of non-minified JavaScript
@@ -35,7 +35,7 @@ implementation only processes URIs, since web browser JavaScript doesn’t
 provide native IRI processing functions. IRIs in documents will be converted
 to URIs according to JavaScript’s [`URL`][URL api] API.
 
-This profile is provisionally identified by the URI
+The Terse profile is provisionally identified by the URI
 
     https://zenomt.com/ns/jsonld-terse
 
