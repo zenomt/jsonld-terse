@@ -3,6 +3,19 @@
 var docUri;
 var rootUri;
 
+function linkify(uri, value) {
+	const spn = document.createElement("span");
+	spn.innerText = value;
+	if(uri && uri.substring(0, 2) != "_:")
+	{
+		const anchor = document.createElement("a");
+		anchor.href = uri;
+		anchor.appendChild(spn);
+		return anchor;
+	}
+	return spn;
+}
+
 async function doLoad() {
 	try {
 		loadButton.disabled = true;
@@ -26,11 +39,11 @@ async function doLoad() {
 		{
 			const tr = document.createElement("tr");
 			const sub = document.createElement("td");
-			sub.innerText = each.subject;
+			sub.appendChild(linkify(each.subject, each.subject));
 			const pred = document.createElement("td");
-			pred.innerText = each.predicate;
+			pred.appendChild(linkify(each.predicate, each.predicate));;
 			const obj = document.createElement("td");
-			obj.innerText = JSON.stringify(each._object);
+			obj.appendChild(linkify(each._object["@id"] ?? (("@value" in each._object) && each._object["@type"]), JSON.stringify(each._object)));
 			tr.appendChild(sub);
 			tr.appendChild(pred);
 			tr.appendChild(obj);

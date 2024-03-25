@@ -58,7 +58,7 @@ Copyright © 2024 Michael Thornburgh. All rights reserved.
   [Linked Data]: https://www.w3.org/wiki/LinkedData
   [RDF]: https://www.w3.org/RDF/
   [datasets]: https://www.w3.org/TR/rdf11-concepts/#section-dataset
-  [This project]: https://github.com/zenomt/jsonld-terse/
+  [This project]: https://github.com/zenomt/jsonld-terse
   [Turtle]: https://www.w3.org/TR/turtle/
   [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
   [test page]: test.html
