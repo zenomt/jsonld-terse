@@ -30,7 +30,10 @@ The [reference implementation](jsonld-terse.js), which parses documents
 conforming to this profile, is about 200 lines of non-minified JavaScript
 with a compressed transfer size of about 2000 bytes. This implementation
 intentionally doesn’t expand `@list`s into RDF Lists, since the RDF List
-construct is much harder to work with than JavaScript `Array`s.
+construct is much harder to work with than JavaScript `Array`s. Also, this
+implementation only processes URIs, since web browser JavaScript doesn’t
+provide native IRI processing functions. IRIs in documents will be converted
+to URIs according to JavaScript’s [`URL`][URL api] API.
 
 This profile is provisionally identified by the URI
 
@@ -59,3 +62,4 @@ Copyright © 2024 Michael Thornburgh. All rights reserved.
   [Turtle]: https://www.w3.org/TR/turtle/
   [jsonld.js]: https://github.com/digitalbazaar/jsonld.js
   [test page]: test.html
+  [URL api]: https://url.spec.whatwg.org/#api

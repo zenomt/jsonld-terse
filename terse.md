@@ -100,7 +100,7 @@ While allowed, document authors **OUGHT TO** avoid nested `@context`s, as
 doing so is unnecessary in idiomatic documents and could obfuscate the
 document’s meaning to a casual human reader.
 
-A node **MAY** have an `@type` member whose value **SHALL** be either a
+A node **MAY** have an `@type` member, whose value **SHALL** be either a
 `String` or an `Array` of `String`s each representing a compact IRI or IRI
 reference.
 
