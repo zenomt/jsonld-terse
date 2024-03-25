@@ -21,11 +21,11 @@ async function doLoad() {
 		loadButton.disabled = true;
 		urlChanged();
 		expanded.innerText = inputDoc.innerText = "";
+		triples.replaceChildren();
 		const response = await fetch(docUri, {
 			cache: "reload",
 			headers: { Accept: 'application/ld+json; profile="http://zenomt.com/ns/jsonld-terse"' }
 		});
-		triples.replaceChildren();
 		const rawText = await response.text();
 		inputDoc.innerText = rawText;
 		const doc = JSON.parse(rawText);

@@ -64,8 +64,7 @@ A document **SHALL** encode exactly one [RDF Graph][graphs]. The `@graph`
 keyword is not recognized.
 
 A document **SHALL** consist of either one top-level JSON `Object`, or a JSON
-`Array` of `Object`s or `Array`s, the `Object`s representing named or blank
-nodes.
+`Array` of `Object`s, the `Object`s representing named or blank nodes.
 
 If an `Object` contains an `@list` member, it is a list, the member’s value
 **MUST** be a (potentially empty) `Array`, and any other members of the
@@ -97,7 +96,7 @@ An `@context`’s members **SHALL** consist only of:
 * zero or more non-IRI terms (that is, not containing a colon) and not beginning with an `@`, whose values **SHALL** be `null` or a `String` representing an IRI reference relative to the currently-in-force base (after applying the `@base` of this context, if any) to be used as a compact IRI prefix or, for `Object` member names, an exact-match replacement. Values **SHALL NOT** themselves be compact IRIs to be recursively expanded.
 
 While allowed, document authors **OUGHT TO** avoid nested `@context`s, as
-doing so is unnecessary in idiomatic documents and could obfuscate the
+doing so should be unnecessary in idiomatic documents and could obfuscate the
 document’s meaning to a casual human reader.
 
 A node **MAY** have an `@type` member, whose value **SHALL** be either a
@@ -141,7 +140,7 @@ Example 1
     "@id": "#me",
     "@type": ["foaf:Person", "schema:Person"],
     "foaf:name": { "@value": "Michael Thornburgh", "@language": "en-us" },
-	"foaf:nick": "Mike",
+    "foaf:nick": "Mike",
     "foaf:depiction": { "@id": "mike.jpg" },
     "schema:worksFor": {
         "@type": "schema:Corporation",
