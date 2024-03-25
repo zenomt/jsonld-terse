@@ -1,0 +1,8 @@
+{
+    "@context": {
+        "schema": "http://schema.org/"
+    },
+    "schema:name": "Manu Sporny",
+    "schema:url": { "@id": "http://manu.sporny.org/" },
+    "schema:image": { "@id": "http://manu.sporny.org/images/manu.png" }
+}
