@@ -9,7 +9,7 @@
     "@type": ["foaf:Person", "schema:Person"],
     "foaf:name": { "@value": "Michael Thornburgh", "@language": "en-us" },
     "foaf:nick": "Mike",
-    "foaf:depiction": { "@id": "mike.jpg" },
+    "foaf:depiction": { "@id": "https://zenomt.zenomt.com/mike-2017.jpg" },
     "schema:worksFor": {
         "@type": "schema:Corporation",
         "schema:name": "Example Corp.",
