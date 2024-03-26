@@ -19,17 +19,17 @@ thousands) of Kbytes of JavaScript.
 This memo proposes the “Terse” profile, a simplified, constrained,
 backward-compatible profile of JSON-LD, inspired by
 [Turtle][] (Terse RDF Triple Language). The Terse profile removes external
-context references, keyword aliases, recursive Compact IRI prefix definitions,
-transformations, mappings, type coercions (except for the `@type` keyword
-itself), and multiple named [graphs][] per document. This profile is intended
-for pure Linked Data applications that don’t require compatibility with ad
-hoc JSON documents, and therefore don’t require the complexity of the full
-JSON-LD toolset. It leverages the ubiquity of JSON document parsers for all
-popular programming languages and environments, including web browsers, to
-eliminate the need to load large lexical analyzer and parser implementations
-for the common RDF serialization formats (such as Turtle) typically used in
-pure Linked Data applications. Conforming documents are intended to be easy
-for humans and computers to write and read.
+context references, keyword aliases, recursive compact IRI prefix definitions,
+transformations, mappings, data indexing, reverse properties, property nesting,
+type coercions (except for the `@type` keyword itself), and named [graphs][].
+This profile is intended for pure Linked Data applications that don’t require
+compatibility with ad hoc JSON documents, and therefore don’t require the
+complexity of the full JSON-LD toolset. It leverages the ubiquity of JSON
+document parsers for all popular programming languages and environments,
+including web browsers, to eliminate the need to load large lexical analyzer
+and parser implementations for the common RDF serialization formats (such as
+Turtle) typically used in pure Linked Data applications. Conforming documents
+are intended to be easy for humans and computers to write and read.
 
 The [reference implementation][], which parses documents conforming to this
 profile, is about 200 lines of non-minified JavaScript with a compressed
@@ -60,8 +60,8 @@ Definition
 ----------
 A “Terse” JSON-LD document is a JSON-LD document constrained thus:
 
-A document **SHALL** encode exactly one [RDF Graph][graphs]. The `@graph`
-keyword is not recognized.
+A Terse document encodes exactly one [RDF Graph][graphs] (the default graph).
+The `@graph` keyword is not recognized; use `@included` instead if needed.
 
 A document **SHALL** consist of either one top-level JSON `Object`, or a JSON
 `Array` of `Object`s, the `Object`s representing named or blank nodes.
