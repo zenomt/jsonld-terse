@@ -21,7 +21,7 @@ backward-compatible profile of JSON-LD, inspired by
 [Turtle][] (Terse RDF Triple Language). The Terse profile removes external
 context references, keyword aliases, recursive compact IRI prefix definitions,
 transformations, mappings, data indexing, reverse properties, property nesting,
-type coercions (except for the `@type` keyword itself), and named [graphs][].
+type coercions (except for the `@type` keyword itself), and [named graphs][datasets].
 This profile is intended for pure Linked Data applications that don’t require
 compatibility with ad hoc JSON documents, and therefore don’t require the
 complexity of the full JSON-LD toolset. It leverages the ubiquity of JSON
@@ -33,7 +33,7 @@ are intended to be easy for humans and computers to write and read.
 
 The [reference implementation][], which parses documents conforming to this
 profile, is about 200 lines of non-minified JavaScript with a compressed
-transfer size of about 2000 bytes.
+transfer size of about 2100 bytes.
 
 The Terse profile is provisionally identified by the URI
 
@@ -60,14 +60,14 @@ Definition
 ----------
 A “Terse” JSON-LD document is a JSON-LD document constrained thus:
 
-A Terse document encodes exactly one [RDF Graph][graphs] (the default graph).
+A Terse document encodes exactly one [RDF Graph][graph] (the default graph).
 The `@graph` keyword is not recognized; use `@included` instead if needed.
 
 A document **SHALL** consist of either one top-level JSON `Object`, or a JSON
 `Array` of `Object`s, the `Object`s representing named or blank nodes.
 
-If an `Object` contains an `@list` member, it is a list, the member’s value
-**MUST** be a (potentially empty) `Array`, and any other members of the
+If an `Object` contains an `@list` member, it is an RDF List, the member’s
+value **MUST** be a (potentially empty) `Array`, and any other members of the
 `Object` are ignored.
 
 Otherwise, if an `Object` contains an `@value` member, it is an RDF Literal.
@@ -113,18 +113,21 @@ IRIs, or exact matches with an `@context` member, **SHALL** be ignored unless
 an `@vocab` is set, in which case each is concatenated with the `@vocab` to
 form an absolute IRI.
 
+JSON’s primitive values (`Number`s, `String`s, `null`, `true`, and `false`)
+are RDF Literals.
+
 Only the following JSON-LD keywords are recognized:
 
 * `@context` : Only in a node
 * `@base` : Only in an `@context`
 * `@vocab` : Only in an `@context`
-* `@id` : Only in a node
+* `@list` : As the only member of an `Object` that is the object of a triple
 * `@value` : The presence of this member defines the `Object` as an RDF Literal
+* `@id` : Only in a node
 * `@type` : Can appear in a node or an RDF Literal
 * `@language` : Only in an RDF Literal whose value is a string type
 * `@direction` : Only in an RDF Literal whose value is a string type
-* `@json` : Only as the `String` value of an `@type` keyword in a node or an RDF Literal
-* `@list` : As the only member of an `Object` that is the object of a triple
+* `@json` : Only as the `String` value of an `@type` keyword
 * `@included` : Only in a node
 
 Example 1
@@ -255,7 +258,7 @@ _:b0 <http://schema.org/image> <http://manu.sporny.org/images/manu.png> .
   [JSON]: https://www.rfc-editor.org/rfc/rfc8259
   [Linked Data]: https://www.w3.org/wiki/LinkedData
   [RDF]: https://www.w3.org/RDF/
-  [graphs]: https://www.w3.org/TR/rdf11-concepts/#section-rdf-graph
+  [graph]: https://www.w3.org/TR/rdf11-concepts/#section-rdf-graph
   [datasets]: https://www.w3.org/TR/rdf11-concepts/#section-dataset
   [Turtle]: https://www.w3.org/TR/turtle/
   [jsonld.js]: https://github.com/digitalbazaar/jsonld.js

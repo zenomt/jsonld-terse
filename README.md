@@ -28,7 +28,7 @@ humans and computers to write and read.
 
 The [reference implementation](jsonld-terse.js), which parses documents
 conforming to this profile, is about 200 lines of non-minified JavaScript
-with a compressed transfer size of about 2000 bytes. This implementation
+with a compressed transfer size of about 2100 bytes. This implementation
 intentionally doesn’t expand `@list`s into RDF Lists, since the RDF List
 construct is much harder to work with than JavaScript `Array`s. Also, this
 implementation only processes URIs, since web browser JavaScript doesn’t
