@@ -32,7 +32,7 @@ class com_zenomt_JSONLD_Terse {
 			if("@list" in node)
 				return { "@list": node["@list"].map(valueObject) };
 			if("@value" in node)
-				return this._expandValue(node);
+				return this._expandLiteral(node);
 			return getId(node);
 		}
 
@@ -88,7 +88,7 @@ class com_zenomt_JSONLD_Terse {
 		if("@list" in node)
 			return { "@list": node["@list"].map(v => this._basicAsTree(v, context)) };
 		if("@value" in node)
-			return this._expandValue(node);
+			return this._expandLiteral(node);
 
 		const item = context.visited.get(node);
 		if(item)
@@ -120,11 +120,11 @@ class com_zenomt_JSONLD_Terse {
 		if(Array.isArray(node))
 			return node.map(v => this._basicMerge(v, depth, context));
 		if((typeof(node) != "object") || (node == null))
-			return this._expandValue({ "@value": node ?? null }, context);
+			return this._expandLiteral({ "@value": node ?? null }, context);
 		if("@list" in node)
 			return { "@list": Array.isArray(node["@list"]) ? node["@list"].map(v => this._basicMerge(v, depth, context)) : [] };
 		if("@value" in node)
-			return this._expandValue(node, context);
+			return this._expandLiteral(node, context);
 		if(visited.has(node))
 			return visited.get(node);
 
@@ -180,7 +180,7 @@ class com_zenomt_JSONLD_Terse {
 		return isKey ? (prefixes[uri] ?? (vocab ? vocab + uri : null)) : (new URL(uri, baseUri)).href;
 	}
 
-	_expandValue(node, { prefixes = {}, baseUri, literals } = {}) {
+	_expandLiteral(node, { prefixes = {}, baseUri, literals } = {}) {
 		const rv = {};
 		[ "@value", "@language", "@direction" ].forEach(key => { if(key in node) rv[key] = structuredClone(node[key]) });
 		if(typeof(node["@type"]) == "string")
