@@ -5,14 +5,14 @@ class com_zenomt_JSONLD_Terse {
 	constructor(node, { documentUri, vocab, fallbackContext, maxDepth=64 } = {}) {
 		this._nodes = new Map();
 		this._literals = new Map();
-		this._root = node ? this.merge(node, { documentUri, vocab, maxDepth, fallbackContext }) : null;
+		this._root = this.get(node ? this.merge(node, { documentUri, vocab, maxDepth, fallbackContext }) : null) ?? this._nodes.values().next().value;
 	}
 
 	merge(node, { documentUri, vocab, fallbackContext, maxDepth=64 } = {}) {
 		const baseUri = this._resolveUri(fallbackContext?.["@base"], documentUri);
 		const prefixes = this._overlayPrefixes({}, fallbackContext, baseUri);
 		vocab = this._resolveVocab(fallbackContext, vocab, baseUri);
-		return this._basicMerge(node, 0, { visited: new Map(), blankNodes: new Map(), prefixes, baseUri, vocab, maxDepth, literals: this._literals });
+		return this._basicMerge(node, { depth: 0, visited: new Map(), blankNodes: new Map(), prefixes, baseUri, vocab, maxDepth, literals: this._literals });
 	}
 
 	get(uriOrNode) { return this._nodes.get(uriOrNode) ?? (uriOrNode ? this._nodes.get(uriOrNode["@id"]) : null); }
@@ -107,22 +107,21 @@ class com_zenomt_JSONLD_Terse {
 		return rv;
 	}
 
-	_basicMerge(node, level, { visited, blankNodes, prefixes, baseUri, vocab, maxDepth, literals }) {
-		const depth = level + 1;
-		if(depth > maxDepth)
+	_basicMerge(node, { depth, visited, blankNodes, prefixes, baseUri, vocab, maxDepth, literals }) {
+		if(++depth > maxDepth)
 			throw new RangeError("nested too deep");
 
 		baseUri = this._resolveUri(node?.["@context"]?.["@base"], baseUri);
 		prefixes = this._overlayPrefixes(prefixes, node?.["@context"], baseUri);
 		vocab = this._resolveVocab(node?.["@context"], vocab, baseUri);
-		const context = { visited, blankNodes, prefixes, baseUri, vocab, maxDepth, literals };
+		const context = { depth, visited, blankNodes, prefixes, baseUri, vocab, maxDepth, literals };
 
 		if(Array.isArray(node))
-			return node.map(v => this._basicMerge(v, depth, context));
+			return node.map(v => this._basicMerge(v, context));
 		if((typeof(node) != "object") || (node == null))
 			return this._expandLiteral({ "@value": node ?? null }, context);
 		if("@list" in node)
-			return { "@list": Array.isArray(node["@list"]) ? node["@list"].map(v => this._basicMerge(v, depth, context)) : [] };
+			return { "@list": Array.isArray(node["@list"]) ? node["@list"].map(v => this._basicMerge(v, context)) : [] };
 		if("@value" in node)
 			return this._expandLiteral(node, context);
 		if(visited.has(node))
@@ -147,12 +146,12 @@ class com_zenomt_JSONLD_Terse {
 			}
 
 			if("@included" == key)
-				this._basicMerge(value, depth, context);
+				this._basicMerge(value, context);
 			else if(key[0] != "@")
 			{
 				key = this._expandUri(key, true, context);
 				if(key)
-					rv[key] = Array.from(new Set((rv[key] ?? []).concat((Array.isArray(value) ? value : [value]).map(v => this._basicMerge(v, depth, context)))));
+					rv[key] = Array.from(new Set((rv[key] ?? []).concat((Array.isArray(value) ? value : [value]).map(v => this._basicMerge(v, context)))));
 			}
 		}
 

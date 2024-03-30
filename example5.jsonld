@@ -1,0 +1,16 @@
+[
+    {
+        "@context": { "schema": "http://schema.org/" },
+        "@id": "#1",
+        "schema:name": "Michael Thornburgh",
+        "schema:url": { "@id": "https://zenomt.zenomt.com/" },
+        "schema:image": { "@id": "https://zenomt.zenomt.com/mike-2017.jpg" }
+    },
+    {
+        "@context": { "schema": "http://schema.org/" },
+        "@id": "#2",
+        "schema:name": "Michael Thornburgh",
+        "schema:url": { "@id": "https://zenomt.zenomt.com/" },
+        "schema:image": { "@id": "https://zenomt.zenomt.com/mike-2017.jpg" }
+    }
+]
