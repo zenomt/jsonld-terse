@@ -4,7 +4,7 @@ A Terse Profile for JSON-LD
 [JSON-LD][] is a [JSON][]-based serialization syntax for [Linked Data][] and
 [Resource Description Framework (RDF)][RDF] [datasets][]. JSON-LD facilities
 are typically used to interpret otherwise idiomatic and ad hoc JSON documents
-as RDF datasets.
+as RDF datasets, or to express RDF Datasets in idiomatic JSON.
 
 JSON-LD provides a rich set of tools, some with complex semantics, to accommodate
 the many idiomatic ad hoc data representations in common use by JSON-based

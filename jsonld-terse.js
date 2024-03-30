@@ -25,7 +25,7 @@ class com_zenomt_JSONLD_Terse {
 	asTriples() {
 		let nextBlank = 0;
 		const blanks = new Map();
-		const getId = node => ({ "@id": node["@id"] ?? blanks.get(node) ?? blanks.set(node, "_:b" + nextBlank++).get(node) });
+		const getId = node => node["@id"] ?? blanks.get(node) ?? blanks.set(node, "_:b" + nextBlank++).get(node);
 		const valueObject = node => {
 			if(Array.isArray(node))
 				return node.map(valueObject);
@@ -33,17 +33,17 @@ class com_zenomt_JSONLD_Terse {
 				return { "@list": node["@list"].map(valueObject) };
 			if("@value" in node)
 				return this._expandLiteral(node);
-			return getId(node);
+			return { "@id": getId(node) };
 		}
 
 		const rv = [];
 		for(const node of this.nodes)
 		{
-			const uri = getId(node);
-			for(const [key, values] of Object.entries(node))
-				if(key[0] != "@")
+			const subject = getId(node);
+			for(const [predicate, values] of Object.entries(node))
+				if(predicate[0] != "@")
 					for(const value of values)
-						rv.push({ subject: uri["@id"], predicate: key, _object: valueObject(value) });
+						rv.push({ subject, predicate, _object: valueObject(value) });
 		}
 
 		return rv;

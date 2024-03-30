@@ -1,0 +1,28 @@
+{
+    "@comment": "testing deduplication",
+
+    "@context": { "ex": "http://example.com/ns#" },
+    "@id": "#test",
+    "ex:one": "literal",
+    "ex:two": { "@id": "ex:link" },
+
+    "@included": [
+        {
+            "@comment": "these are duplicates and shouldn’t result in new triples except for ex:three",
+            "@id": "#test",
+            "ex:one": { "@value": "literal" },
+            "ex:two": { "@id": "ex:link" },
+            "ex:three": ["literal", "literal"]
+        },
+        {
+            "@comment": "'literal' and 'literal@en-us' are distinct",
+            "@id": "#test2",
+            "ex:four": [ { "@value": "literal" }, { "@value": "literal", "@language": "en-us" }, "literal" ]
+        },
+        {
+            "@comment": "this list should have three entries even though they're the same",
+            "@id": "#test",
+            "ex:five": { "@list": [ "literal", "literal", "literal" ] }
+        }
+    ]
+}
