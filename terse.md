@@ -17,19 +17,19 @@ toolset (such as [jsonld.js][]) comprise thousands of lines and hundreds (or
 thousands) of Kbytes of JavaScript.
 
 This memo proposes the “Terse” profile, a simplified, constrained,
-backward-compatible profile of JSON-LD, inspired by
-[Turtle][] (Terse RDF Triple Language). The Terse profile removes external
-context references, keyword aliases, recursive compact IRI prefix definitions,
-transformations, mappings, data indexing, reverse properties, property nesting,
-type coercions (except for the `@type` keyword itself), and [named graphs][datasets].
-This profile is intended for pure Linked Data applications that don’t require
+backward-compatible profile of JSON-LD, inspired by [Turtle][] (the Terse RDF
+Triple Language). The Terse profile removes external context references,
+keyword aliases, recursive compact IRI prefix definitions, transformations,
+mappings, data indexing, reverse properties, property nesting, type coercions
+(except for the `@type` keyword itself), and [named graphs][datasets]. This
+profile is intended for pure Linked Data applications that don’t require
 compatibility with ad hoc JSON documents, and therefore don’t require the
 complexity of the full JSON-LD toolset. It leverages the ubiquity of JSON
-document parsers for all popular programming languages and environments,
-including web browsers, to eliminate the need to load large lexical analyzer
-and parser implementations for the common RDF serialization formats (such as
-Turtle) typically used in pure Linked Data applications. Conforming documents
-are intended to be easy for humans and computers to write and read.
+document parsers for most popular programming languages and environments
+(including web browsers) to eliminate the need to load large parser implementations
+for common RDF serialization formats (such as Turtle) typically used in pure
+Linked Data applications. Conforming documents are intended to be easy for
+humans and computers to read and write.
 
 The [reference implementation][], which parses documents conforming to this
 profile, is about 200 lines of non-minified JavaScript with a compressed

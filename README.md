@@ -15,25 +15,26 @@ toolset (such as [jsonld.js][]) comprise thousands of lines and hundreds (or
 thousands) of Kbytes of JavaScript.
 
 [This project][] proposes the “[Terse](terse.md)” profile, a simplified,
-constrained, backward-compatible profile of JSON-LD, inspired by
-[Turtle][] (Terse RDF Triple Language). The Terse profile is intended for
-pure Linked Data applications that don’t require compatibility with ad hoc
-JSON documents, and therefore don’t require the complexity of the full JSON-LD
-toolset. It leverages the ubiquity of JSON document parsers for most popular
-programming languages and environments, including web browsers, to eliminate
-the need to load large lexical analyzer and parser implementations for the
-common RDF serialization formats (such as Turtle) typically used in pure
-Linked Data applications. Conforming documents are intended to be easy for
-humans and computers to write and read.
+constrained, backward-compatible profile of JSON-LD, inspired by [Turtle][]
+(the Terse RDF Triple Language). The Terse profile is intended for pure Linked
+Data applications that don’t require compatibility with ad hoc JSON documents,
+and therefore don’t require the complexity of the full JSON-LD toolset. It
+leverages the ubiquity of JSON document parsers for most popular programming
+languages and environments (including web browsers) to eliminate the need to
+load large parser implementations for common RDF serialization formats (such
+as Turtle) typically used in pure Linked Data applications. Conforming documents
+are intended to be easy for humans and computers to read and write.
 
 The [reference implementation](jsonld-terse.js), which parses documents
 conforming to this profile, is about 200 lines of non-minified JavaScript
-with a compressed transfer size of about 2100 bytes. This implementation
-intentionally doesn’t expand `@list`s into RDF Lists, since the RDF List
-construct is much harder to work with than JavaScript `Array`s. Also, this
-implementation only processes URIs, since web browser JavaScript doesn’t
-provide native IRI processing functions. IRIs in documents will be converted
-to URIs according to JavaScript’s [`URL`][URL api] API.
+with a compressed transfer size of about 2100 bytes. Graphs are parsed into
+interconnected Plain Old JavaScript Objects. Parsed graphs can be rendered
+to a JSON-LD tree representation rooted from any node, or to an array of RDF
+triples. This implementation intentionally doesn’t expand `@list`s into RDF
+Lists, since the RDF List construct is much harder to work with than JavaScript
+`Array`s. Also, this implementation only processes URIs, since web browser
+JavaScript doesn’t provide native IRI processing functions. IRIs in documents
+will be converted to URIs according to JavaScript’s [`URL`][URL api] API.
 
 The Terse profile is provisionally identified by the URI
 
