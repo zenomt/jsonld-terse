@@ -37,7 +37,7 @@ async function doLoad() {
 		console.log("graph", graph);
 		console.log("root", graph.root);
 		console.log("nodes", graph.nodes);
-		expanded.innerText = graph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiterals: rawLiterals.checked });
+		expanded.innerText = graph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiteral: rawLiteral.checked });
 		for(const each of graph.asTriples())
 		{
 			const tr = document.createElement("tr");
@@ -87,7 +87,7 @@ function urlChanged() {
 <label><code>asTree</code> options:</label>
 <input type="checkbox" id="noArray" /><label for="noArray">noArray</label>
 <input type="checkbox" id="relative" /><label for="relative">relative</label>
-<input type="checkbox" id="rawLiterals" /><label for="rawLiterals">rawLiterals</label>
+<input type="checkbox" id="rawLiteral" /><label for="rawLiteral">rawLiteral</label>
 
 <h2>Input</h2>
 <pre id="inputDoc"></pre>

@@ -49,12 +49,12 @@ class com_zenomt_JSONLD_Terse {
 		return rv;
 	}
 
-	asTree(root, { noArray, base, rawLiterals } = {}) {
+	asTree(root, { noArray, base, rawLiteral } = {}) {
 		root = root ? this.get(root) : this.root;
 		base = base ? (new URL("", base)) : null;
 		const basePath = base ? (new URL(".", base)) : null;
 		const baseRoot = base ? (new URL("/", base)) : null;
-		const context = { visited: new Map(), nextBlank: 0, noArray, base, basePath, baseRoot, rawLiterals };
+		const context = { visited: new Map(), nextBlank: 0, noArray, base, basePath, baseRoot, rawLiteral };
 
 		const rv =  root ? this._basicAsTree(root, context) : {};
 
@@ -68,7 +68,7 @@ class com_zenomt_JSONLD_Terse {
 		return rv;
 	}
 
-	asJSON(root, { noArray, indent, base, rawLiterals } = {}) { return JSON.stringify(this.asTree(root, { noArray, base, rawLiterals }), null, indent); }
+	asJSON(root, { noArray, indent, base, rawLiteral } = {}) { return JSON.stringify(this.asTree(root, { noArray, base, rawLiteral }), null, indent); }
 
 	_overlayPrefixes(base, overlay, baseUri) {
 		if(overlay == null)
@@ -88,7 +88,7 @@ class com_zenomt_JSONLD_Terse {
 		if("@list" in node)
 			return { "@list": node["@list"].map(v => this._basicAsTree(v, context)) };
 		if("@value" in node)
-			return this._adaptLiteral(node, { rawLiterals: context.rawLiterals } );
+			return this._adaptLiteral(node, { rawLiteral: context.rawLiteral } );
 
 		const item = context.visited.get(node);
 		if(item)
@@ -179,8 +179,8 @@ class com_zenomt_JSONLD_Terse {
 		return isKey ? (prefixes[uri] ?? (vocab ? vocab + uri : null)) : (new URL(uri, baseUri)).href;
 	}
 
-	_adaptLiteral(node, { prefixes = {}, baseUri, literals, rawLiterals } = {}) {
-		if(rawLiterals && ["@type", "@language", "@direction"].every(key => !(key in node)) && this._isPrimitive(node["@value"]))
+	_adaptLiteral(node, { prefixes = {}, baseUri, literals, rawLiteral } = {}) {
+		if(rawLiteral && ["@type", "@language", "@direction"].every(key => !(key in node)) && this._isPrimitive(node["@value"]))
 			return structuredClone(node["@value"]);
 		const rv = {};
 		[ "@value", "@language", "@direction" ].forEach(key => { if(key in node) rv[key] = structuredClone(node[key]) });
