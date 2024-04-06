@@ -5,13 +5,15 @@
     "@id": "#test",
     "ex:one": "literal",
     "ex:two": { "@id": "ex:link" },
+    "ex:primitives": [ null, true, false, 3, "literal" ],
 
     "@included": [
         {
-            "@comment": "these are duplicates and shouldn’t result in new triples except for ex:three",
+            "@comment": "these are duplicates and shouldn’t result in new triples except for ex:three and ex:primitives",
             "@id": "#test",
             "ex:one": { "@value": "literal" },
             "ex:two": { "@id": "ex:link" },
+            "ex:primitives": [ "literal", 3, false, -4, true, null ],
             "ex:three": ["literal", "literal"]
         },
         {

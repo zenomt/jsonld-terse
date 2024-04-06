@@ -6,5 +6,17 @@
     {
         "@id": "#2",
         "urn:private:pred": { "@id": "#1" }
+    },
+    {
+        "@id": "urn:private:name:1",
+        "urn:private:pred": { "@id": "urn:private:name:2" }
+    },
+    {
+        "@id": "urn:private:name:2",
+        "urn:private:pred": { "@id": "urn:private:name:3" }
+    },
+    {
+        "@id": "urn:private:name:3",
+        "urn:private:pred": { "@id": "urn:private:name:1" }
     }
 ]
