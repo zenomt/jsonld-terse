@@ -32,7 +32,7 @@ class com_zenomt_JSONLD_Terse {
 			if("@list" in node)
 				return { "@list": node["@list"].map(valueObject) };
 			if("@value" in node)
-				return this._expandLiteral(node);
+				return this._adaptLiteral(node);
 			return { "@id": getId(node) };
 		}
 
@@ -49,12 +49,12 @@ class com_zenomt_JSONLD_Terse {
 		return rv;
 	}
 
-	asTree(root, { noArray, base } = {}) {
+	asTree(root, { noArray, base, rawLiterals } = {}) {
 		root = root ? this.get(root) : this.root;
 		base = base ? (new URL("", base)) : null;
 		const basePath = base ? (new URL(".", base)) : null;
 		const baseRoot = base ? (new URL("/", base)) : null;
-		const context = { visited: new Map(), nextBlank: 0, noArray, base, basePath, baseRoot };
+		const context = { visited: new Map(), nextBlank: 0, noArray, base, basePath, baseRoot, rawLiterals };
 
 		const rv =  root ? this._basicAsTree(root, context) : {};
 
@@ -68,10 +68,10 @@ class com_zenomt_JSONLD_Terse {
 		return rv;
 	}
 
-	asJSON(root, { noArray, indent, base } = {}) { return JSON.stringify(this.asTree(root, { noArray, base }), null, indent); }
+	asJSON(root, { noArray, indent, base, rawLiterals } = {}) { return JSON.stringify(this.asTree(root, { noArray, base, rawLiterals }), null, indent); }
 
 	_overlayPrefixes(base, overlay, baseUri) {
-		if(overlay == undefined)
+		if(overlay == null)
 			return base;
 		const rv = {};
 		for(const [key, value] of Object.entries(base))
@@ -88,7 +88,7 @@ class com_zenomt_JSONLD_Terse {
 		if("@list" in node)
 			return { "@list": node["@list"].map(v => this._basicAsTree(v, context)) };
 		if("@value" in node)
-			return this._expandLiteral(node);
+			return this._adaptLiteral(node, { rawLiterals: context.rawLiterals } );
 
 		const item = context.visited.get(node);
 		if(item)
@@ -118,12 +118,12 @@ class com_zenomt_JSONLD_Terse {
 
 		if(Array.isArray(node))
 			return node.map(v => this._basicMerge(v, context));
-		if((typeof(node) != "object") || (node == null))
-			return this._expandLiteral({ "@value": node ?? null }, context);
+		if(this._isPrimitive(node))
+			return this._adaptLiteral({ "@value": node ?? null }, context);
 		if("@list" in node)
 			return { "@list": Array.isArray(node["@list"]) ? node["@list"].map(v => this._basicMerge(v, context)) : [] };
 		if("@value" in node)
-			return this._expandLiteral(node, context);
+			return this._adaptLiteral(node, context);
 		if(visited.has(node))
 			return visited.get(node);
 
@@ -162,7 +162,7 @@ class com_zenomt_JSONLD_Terse {
 
 	_resolveVocab(context, vocab, baseUri) {
 		vocab = context?.["@vocab"] ?? vocab;
-		return (vocab != undefined) ? (new URL(vocab, baseUri)).href : null;
+		return (vocab != null) ? (new URL(vocab, baseUri)).href : null;
 	}
 
 	_expandUri(uri, isKey, { prefixes, vocab, baseUri }) {
@@ -179,7 +179,9 @@ class com_zenomt_JSONLD_Terse {
 		return isKey ? (prefixes[uri] ?? (vocab ? vocab + uri : null)) : (new URL(uri, baseUri)).href;
 	}
 
-	_expandLiteral(node, { prefixes = {}, baseUri, literals } = {}) {
+	_adaptLiteral(node, { prefixes = {}, baseUri, literals, rawLiterals } = {}) {
+		if(rawLiterals && ["@type", "@language", "@direction"].every(key => !(key in node)) && this._isPrimitive(node["@value"]))
+			return structuredClone(node["@value"]);
 		const rv = {};
 		[ "@value", "@language", "@direction" ].forEach(key => { if(key in node) rv[key] = structuredClone(node[key]) });
 		if(typeof(node["@type"]) == "string")
@@ -197,4 +199,6 @@ class com_zenomt_JSONLD_Terse {
 			return uri.href.substring(basePath.href.length) || ".";
 		return uri.href.substring(baseRoot.href.length - 1);
 	}
+
+	_isPrimitive(value) { return (typeof(value) != "object") || (null == value); }
 }

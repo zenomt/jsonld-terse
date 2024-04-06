@@ -20,6 +20,8 @@ async function doLoad() {
 	try {
 		loadButton.disabled = true;
 		urlChanged();
+		const rootUriURL = new URL(rootUri);
+		const canRelative = rootUriURL.origin && rootUriURL.origin != "null" && rootUriURL.pathname;
 		expanded.innerText = inputDoc.innerText = "";
 		triples.replaceChildren();
 		const response = await fetch(docUri, {
@@ -32,9 +34,10 @@ async function doLoad() {
 		const graph = new com_zenomt_JSONLD_Terse(doc, { documentUri:docUri });
 		if(graph.get(rootUri))
 			graph.root = rootUri;
+		console.log("graph", graph);
 		console.log("root", graph.root);
 		console.log("nodes", graph.nodes);
-		expanded.innerText = graph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked ? rootUri : null });
+		expanded.innerText = graph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiterals: rawLiterals.checked });
 		for(const each of graph.asTriples())
 		{
 			const tr = document.createElement("tr");
@@ -49,7 +52,7 @@ async function doLoad() {
 			tr.appendChild(obj);
 			triples.appendChild(tr);
 		}
-	} catch(e) { expanded.innerText = e.toString(); }
+	} catch(e) { expanded.innerText = e.toString(); console.log(e); }
 	loadButton.disabled = false;
 }
 
@@ -66,8 +69,6 @@ function urlChanged() {
 <body onload="urlChanged()">
 <h1>Test JSON-LD <a href="http://zenomt.com/ns/jsonld-terse">Terse Profile</a></h1>
 <button id="loadButton" onclick="doLoad()">Load &amp; Parse</button>
-<input type="checkbox" id="noArray" /><label for="noArray">noArray</label>
-<input type="checkbox" id="relative" /><label for="relative">relative</label>
 
 <input type="text" size="60" id="docUrl" title="JSON-LD-Terse Document URL" placeholder="https://zenomt.zenomt.com/card#me" oninput="urlChanged()" list="uri_list" autocomplete="off"/>
 <datalist id="uri_list">
@@ -81,11 +82,18 @@ function urlChanged() {
 
 <input type="url" size="60" id="baseOverride" title="Root URI Override Relative to Document" oninput="urlChanged()" />
 <input type="url" size="60" id="computedRoot" title="Computed Root URI" disabled="true"/>
+<br/>
+
+<label><code>asTree</code> options:</label>
+<input type="checkbox" id="noArray" /><label for="noArray">noArray</label>
+<input type="checkbox" id="relative" /><label for="relative">relative</label>
+<input type="checkbox" id="rawLiterals" /><label for="rawLiterals">rawLiterals</label>
+
 <h2>Input</h2>
 <pre id="inputDoc"></pre>
-<h2>Expanded As JSON-LD</h2>
+<h2>asTree</h2>
 <pre id="expanded"></pre>
-<h2>Triples</h2>
+<h2>asTriples</h2>
 <table style="border-spacing: 1em 0px; text-align: left">
 	<thead> <tr> <th>Subject</th> <th>Predicate</th> <th>Object</th> </tr> </thead>
 	<tbody id="triples" style="font-family: monospace"></tbody>

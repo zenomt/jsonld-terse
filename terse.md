@@ -33,7 +33,7 @@ humans and computers to read and write.
 
 The [reference implementation][], which parses documents conforming to this
 profile, is about 200 lines of non-minified JavaScript with a compressed
-transfer size of about 2100 bytes.
+transfer size of about 2200 bytes.
 
 The Terse profile is provisionally identified by the URI
 
