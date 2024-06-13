@@ -1,0 +1,19 @@
+{
+    "@comment": "testing list member expansion",
+    "@context": { "ex": "http://example.com/ns#" },
+
+    "@id": "#test",
+    "ex:blanks": { "@list": [
+        { "@id": "_:86" },
+        { "@id": "_:99" },
+        { "ex:knows": { "@id": "_:Reg" } },
+        { "@id": "_:Reg" },
+        {}
+    ] },
+
+    "@included": [
+        { "@id": "_:86", "ex:knows": { "@id": "_:99" } },
+        { "@id": "_:99", "ex:knows": { "@id": "_:86" } },
+        { "@id": "_:Reg", "ex:knows": [ {}, { "@id": "_:Reg" }, { "@id": "_:99" } ] }
+    ]
+}

@@ -18,5 +18,17 @@
     {
         "@id": "urn:private:name:3",
         "urn:private:pred": { "@id": "urn:private:name:1" }
+    },
+    {
+        "@id": "_:blank1",
+        "urn:private:pred": { "@id": "_:blank2" }
+    },
+    {
+        "@id": "_:blank2",
+        "urn:private:pred": { "@id": "_:blank3" }
+    },
+    {
+        "@id": "_:blank3",
+        "urn:private:pred": { "@id": "_:blank1" }
     }
 ]
