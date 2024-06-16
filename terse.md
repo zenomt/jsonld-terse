@@ -32,8 +32,8 @@ Linked Data applications. Conforming documents are intended to be easy for
 humans and computers to read and write.
 
 The [reference implementation][], which parses documents conforming to this
-profile, is about 200 lines of non-minified JavaScript with a compressed
-transfer size of about 2200 bytes.
+profile, is about 220 lines of non-minified JavaScript with a compressed
+transfer size of about 2300 bytes.
 
 The Terse profile is provisionally identified by the URI
 

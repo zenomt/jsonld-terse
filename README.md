@@ -26,8 +26,8 @@ as Turtle) typically used in pure Linked Data applications. Conforming documents
 are intended to be easy for humans and computers to read and write.
 
 The [reference implementation](jsonld-terse.js), which parses documents
-conforming to this profile, is about 200 lines of non-minified JavaScript
-with a compressed transfer size of about 2200 bytes. Graphs are parsed into
+conforming to this profile, is about 220 lines of non-minified JavaScript
+with a compressed transfer size of about 2300 bytes. Graphs are parsed into
 interconnected Plain Old JavaScript Objects. Parsed graphs can be rendered
 to a JSON-LD tree representation rooted from any node, or to an array of RDF
 triples. This implementation intentionally doesn’t expand `@list`s into RDF

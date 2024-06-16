@@ -22,11 +22,11 @@ async function doLoad() {
 		urlChanged();
 		const rootUriURL = new URL(rootUri);
 		const canRelative = rootUriURL.origin && rootUriURL.origin != "null" && rootUriURL.pathname;
-		expanded.innerText = inputDoc.innerText = "";
+		expanded.innerText = inputDoc.innerText = metadata.innerText = "";
 		triples.replaceChildren();
 		const response = await fetch(docUri, {
 			cache: "reload",
-			headers: { Accept: 'application/ld+json; profile="http://zenomt.com/ns/jsonld-terse"' }
+			headers: { Accept: 'application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/jsonld-metadata"' }
 		});
 		const rawText = await response.text();
 		inputDoc.innerText = rawText;
@@ -37,6 +37,7 @@ async function doLoad() {
 		console.log("graph", graph);
 		console.log("root", graph.root);
 		console.log("nodes", graph.nodes);
+		console.log("effectiveRootContext", com_zenomt_JSONLD_Terse.effectiveRootContext(doc, { documentUri:docUri }));
 		expanded.innerText = graph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiteral: rawLiteral.checked });
 		for(const each of graph.asTriples())
 		{
@@ -52,6 +53,9 @@ async function doLoad() {
 			tr.appendChild(obj);
 			triples.appendChild(tr);
 		}
+		const mdGraph = com_zenomt_JSONLD_Terse.getAdjunct(doc, "@metadata", { documentUri:docUri });
+		console.log("metadata graph", mdGraph);
+		metadata.innerText = mdGraph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiteral: rawLiteral.checked });
 	} catch(e) { expanded.innerText = e.toString(); console.log(e); }
 	loadButton.disabled = false;
 }
@@ -99,5 +103,7 @@ function urlChanged() {
 	<thead> <tr> <th>Subject</th> <th>Predicate</th> <th>Object</th> </tr> </thead>
 	<tbody id="triples" style="font-family: monospace"></tbody>
 </table>
+<h2>metadata graph</h2>
+<pre id="metadata"></pre>
 
 </body>

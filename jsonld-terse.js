@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: MIT
 
 class com_zenomt_JSONLD_Terse {
+	static getAdjunct (node, key, { documentUri, vocab, fallbackContext, maxDepth=64 } = {}) {
+		return new this(node?.[key], { fallbackContext:this.effectiveRootContext(node, { documentUri, vocab, fallbackContext }), maxDepth });
+	}
+
 	constructor(node, { documentUri, vocab, fallbackContext, maxDepth=64 } = {}) {
 		this._nodes = new Map();
 		this._literals = new Map();
@@ -9,9 +13,8 @@ class com_zenomt_JSONLD_Terse {
 	}
 
 	merge(node, { documentUri, vocab, fallbackContext, maxDepth=64 } = {}) {
-		const baseUri = this._resolveUri(fallbackContext?.["@base"], documentUri);
-		const prefixes = this._overlayPrefixes({}, fallbackContext, baseUri);
-		vocab = this._resolveVocab(fallbackContext, vocab, baseUri);
+		let baseUri, prefixes;
+		({ baseUri, prefixes, vocab } = this.constructor._resolveContext(documentUri, vocab, fallbackContext, {}));
 		return this._basicMerge(node, { depth: 0, visited: new Map(), blankNodes: new Map(), prefixes, baseUri, vocab, maxDepth, literals: this._literals });
 	}
 
@@ -32,7 +35,7 @@ class com_zenomt_JSONLD_Terse {
 			if("@list" in node)
 				return { "@list": node["@list"].map(valueObject) };
 			if("@value" in node)
-				return this._adaptLiteral(node);
+				return this.constructor._adaptLiteral(node);
 			return { "@id": getId(node) };
 		}
 
@@ -70,16 +73,23 @@ class com_zenomt_JSONLD_Terse {
 
 	asJSON(root, { noArray, indent, base, rawLiteral } = {}) { return JSON.stringify(this.asTree(root, { noArray, base, rawLiteral }), null, indent); }
 
-	_overlayPrefixes(base, overlay, baseUri) {
-		if(overlay == null)
-			return base;
-		const rv = {};
-		for(const [key, value] of Object.entries(base))
-			rv[key] = value;
-		for(const [key, value] of Object.entries(overlay ?? {}))
-			if(key[0] != "@")
-				rv[key] = (typeof(value) == "string") ? (new URL(value, baseUri)).href : null;
-		return rv;
+	static effectiveRootContext(node, { documentUri, vocab, fallbackContext } = {}) {
+		let baseUri, prefixes;
+		({ baseUri, prefixes, vocab } = this._resolveContext(documentUri, vocab, fallbackContext, {}));
+		({ baseUri, prefixes, vocab } = this._resolveContext(baseUri, vocab, node?.["@context"], prefixes));
+		prefixes["@base"] = baseUri?.href ?? baseUri;
+		prefixes["@vocab"] = vocab;
+		return prefixes;
+	}
+
+	_makeRelative(uri, { base, basePath, baseRoot }) {
+		if((!base) || (base.origin != uri.origin))
+			return uri.href;
+		if((new URL("", uri)).href == base.href)
+			return uri.hash;
+		if((new URL(".", uri)).href.startsWith(basePath.href))
+			return uri.href.substring(basePath.href.length) || ".";
+		return uri.href.substring(baseRoot.href.length - 1);
 	}
 
 	_basicAsTree(node, context) {
@@ -88,7 +98,7 @@ class com_zenomt_JSONLD_Terse {
 		if("@list" in node)
 			return { "@list": node["@list"].map(v => this._basicAsTree(v, context)) };
 		if("@value" in node)
-			return this._adaptLiteral(node, { rawLiteral: context.rawLiteral } );
+			return this.constructor._adaptLiteral(node, { rawLiteral: context.rawLiteral } );
 
 		const item = context.visited.get(node);
 		if(item)
@@ -111,23 +121,21 @@ class com_zenomt_JSONLD_Terse {
 		if(++depth > maxDepth)
 			throw new RangeError("nested too deep");
 
-		baseUri = this._resolveUri(node?.["@context"]?.["@base"], baseUri);
-		prefixes = this._overlayPrefixes(prefixes, node?.["@context"], baseUri);
-		vocab = this._resolveVocab(node?.["@context"], vocab, baseUri);
+		({ baseUri, prefixes, vocab } = this.constructor._resolveContext(baseUri, vocab, node?.["@context"], prefixes));
 		const context = { depth, visited, blankNodes, prefixes, baseUri, vocab, maxDepth, literals };
 
 		if(Array.isArray(node))
 			return node.map(v => this._basicMerge(v, context));
-		if(this._isPrimitive(node))
-			return this._adaptLiteral({ "@value": node ?? null }, context);
+		if(this.constructor._isPrimitive(node))
+			return this.constructor._adaptLiteral({ "@value": node ?? null }, context);
 		if("@list" in node)
 			return { "@list": Array.isArray(node["@list"]) ? node["@list"].map(v => this._basicMerge(v, context)) : [] };
 		if("@value" in node)
-			return this._adaptLiteral(node, context);
+			return this.constructor._adaptLiteral(node, context);
 		if(visited.has(node))
 			return visited.get(node);
 
-		const uri = this._expandUri(node["@id"], false, context);
+		const uri = this.constructor._expandUri(node["@id"], false, context);
 		const isBlank = (typeof(uri) != "string") || uri.substring(0, 2) == "_:";
 		const rv = (isBlank ? blankNodes.get(uri) : this._nodes.get(uri)) ?? {};
 		if(!isBlank)
@@ -149,7 +157,7 @@ class com_zenomt_JSONLD_Terse {
 				this._basicMerge(value, context);
 			else if(key[0] != "@")
 			{
-				key = this._expandUri(key, true, context);
+				key = this.constructor._expandUri(key, true, context);
 				if(key)
 					rv[key] = Array.from(new Set((rv[key] ?? []).concat((Array.isArray(value) ? value : [value]).map(v => this._basicMerge(v, context)))));
 			}
@@ -158,14 +166,26 @@ class com_zenomt_JSONLD_Terse {
 		return rv;
 	}
 
-	_resolveUri(uri, baseUri) { return uri ? (new URL(uri, baseUri)) : baseUri; }
+	static _resolveUri(uri, baseUri) { return uri ? (new URL(uri, baseUri)) : baseUri; }
 
-	_resolveVocab(context, vocab, baseUri) {
+	static _resolveVocab(context, vocab, baseUri) {
 		vocab = context?.["@vocab"] ?? vocab;
 		return (vocab != null) ? (new URL(vocab, baseUri)).href : null;
 	}
 
-	_expandUri(uri, isKey, { prefixes, vocab, baseUri }) {
+	static _overlayPrefixes(base, overlay, baseUri) {
+		if(overlay == null)
+			return base;
+		const rv = {};
+		for(const [key, value] of Object.entries(base))
+			rv[key] = value;
+		for(const [key, value] of Object.entries(overlay ?? {}))
+			if(key[0] != "@")
+				rv[key] = (typeof(value) == "string") ? (new URL(value, baseUri)).href : null;
+		return rv;
+	}
+
+	static _expandUri(uri, isKey, { prefixes, vocab, baseUri }) {
 		if(typeof(uri) != "string")
 			return null;
 		if(uri == "@json")
@@ -179,7 +199,7 @@ class com_zenomt_JSONLD_Terse {
 		return isKey ? (prefixes[uri] ?? (vocab ? vocab + uri : null)) : (new URL(uri, baseUri)).href;
 	}
 
-	_adaptLiteral(node, { prefixes = {}, baseUri, literals, rawLiteral } = {}) {
+	static _adaptLiteral(node, { prefixes = {}, baseUri, literals, rawLiteral } = {}) {
 		if(rawLiteral && ["@type", "@language", "@direction"].every(key => !(key in node)) && this._isPrimitive(node["@value"]))
 			return structuredClone(node["@value"]);
 		const rv = {};
@@ -190,15 +210,12 @@ class com_zenomt_JSONLD_Terse {
 		return literals ? literals.get(valueKey) ?? (literals.set(valueKey, rv), rv) : rv;
 	}
 
-	_makeRelative(uri, { base, basePath, baseRoot }) {
-		if((!base) || (base.origin != uri.origin))
-			return uri.href;
-		if((new URL("", uri)).href == base.href)
-			return uri.hash;
-		if((new URL(".", uri)).href.startsWith(basePath.href))
-			return uri.href.substring(basePath.href.length) || ".";
-		return uri.href.substring(baseRoot.href.length - 1);
-	}
+	static _isPrimitive(value) { return (typeof(value) != "object") || (null == value); }
 
-	_isPrimitive(value) { return (typeof(value) != "object") || (null == value); }
+	static _resolveContext(baseUri, vocab, context, prefixes) {
+		baseUri = this._resolveUri(context?.["@base"], baseUri);
+		prefixes = this._overlayPrefixes(prefixes, context, baseUri);
+		vocab = this._resolveVocab(context, vocab, baseUri);
+		return { baseUri, prefixes, vocab };
+	}
 }

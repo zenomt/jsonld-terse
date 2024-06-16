@@ -5,6 +5,17 @@
         "schema": "http://schema.org/",
         "owl":    "http://www.w3.org/2002/07/owl#"
     },
+    "@metadata": {
+        "@context": {
+            "@base": "example.jsonld?cursor=2",
+            "md": "http://zenomt.com/ns/jsonld-metadata#"
+        },
+        "@id": "",
+        "@type": "md:Page",
+        "md:prev": { "md:target": { "@id": "?cursor=1" }, "md:etag": "defg" },
+        "md:next": { "md:target": { "@id": "?cursor=3" }, "md:etag": "abcd" },
+        "schema:url": { "@id": "" }
+    },
     "@id": "#me",
     "@type": ["foaf:Person", "schema:Person"],
     "foaf:name": { "@value": "Michael Thornburgh", "@language": "en-us" },
