@@ -1,0 +1,67 @@
+{
+    "@context": {
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "md": "http://zenomt.com/ns/jsonld-metadata#"
+    },
+
+    "@id": "md:",
+    "@type": "http://www.w3.org/2002/07/owl#Ontology",
+    "rdfs:comment": "Vocabulary for resource metadata for the Terse JSON-LD API.",
+
+    "@included": [
+        {
+            "@id": "md:Resource",
+            "@type": "rdfs:Class",
+            "rdfs:subClassOf": { "@id": "rdfs:Resource" },
+            "rdfs:comment": "An HTTP-addressable resource conforming to the Terse JSON-LD API."
+        },
+        {
+            "@id": "md:Page",
+            "@type": "rdfs:Class",
+            "rdfs:subClassOf": { "@id": "md:Resource" },
+            "rdfs:comment": "A resource that is an in-sequence page of a paged resource as defined by the Terse JSON-LD API."
+        },
+        {
+            "@id": "md:firstPage",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "md:Resource" },
+            "rdfs:range": { "@id": "md:Page" },
+            "rdfs:comment": "The first page of a paged resource."
+        },
+        {
+            "@id": "md:lastPage",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "md:Resource" },
+            "rdfs:range": { "@id": "md:Page" },
+            "rdfs:comment": "The last page of a paged resource."
+        },
+        {
+            "@id": "md:nextPage",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "md:Page" },
+            "rdfs:range": { "@id": "md:Page" },
+            "rdfs:comment": "The next in-sequence page of a paged resource."
+        },
+        {
+            "@id": "md:prevPage",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "md:Page" },
+            "rdfs:range": { "@id": "md:Page" },
+            "rdfs:comment": "The previous in-sequence page of a paged resource."
+        },
+        {
+            "@id": "md:pageOf",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "md:Page" },
+            "rdfs:range": { "@id": "md:Resource" },
+            "rdfs:comment": "The canonical resource of which this is a page."
+        },
+        {
+            "@id": "md:etag",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "md:Resource" },
+            "rdfs:range": { "@id": "rdfs:Literal" },
+            "rdfs:comment": "The Entity Tag of this resource at the time this representation was generated."
+        }
+    ]
+}

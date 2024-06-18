@@ -7,14 +7,14 @@
     },
     "@metadata": {
         "@context": {
-            "@base": "example.jsonld?cursor=2",
+            "@base": "example.jsonld",
             "md": "http://zenomt.com/ns/jsonld-metadata#"
         },
-        "@id": "",
+        "@id": "?cursor=1",
         "@type": "md:Page",
-        "md:prev": { "md:target": { "@id": "?cursor=1" }, "md:etag": "defg" },
-        "md:next": { "md:target": { "@id": "?cursor=3" }, "md:etag": "abcd" },
-        "schema:url": { "@id": "" }
+        "md:prevPage": { "@id": "?cursor=1" },
+        "md:nextPage": { "@id": "?cursor=3" },
+        "md:pageOf": { "@id": "", "md:etag": "abcd" }
     },
     "@id": "#me",
     "@type": ["foaf:Person", "schema:Person"],
