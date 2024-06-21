@@ -1,22 +1,20 @@
 {
     "@context": {
-        "@base":  "card",
         "foaf":   "http://xmlns.com/foaf/0.1/",
         "schema": "http://schema.org/",
         "owl":    "http://www.w3.org/2002/07/owl#"
     },
     "@metadata": {
         "@context": {
-            "@base": "example.jsonld",
             "md": "http://zenomt.com/ns/jsonld-metadata#"
         },
-        "@id": "?cursor=1",
+        "@id": "?cursor=2",
         "@type": "md:Page",
         "md:prevPage": { "@id": "?cursor=1" },
         "md:nextPage": { "@id": "?cursor=3" },
-        "md:pageOf": { "@id": "", "md:etag": "abcd" }
+        "md:pageOf": { "@id": "example.jsonld", "md:etag": "abcd" }
     },
-    "@id": "#me",
+    "@id": "card#me",
     "@type": ["foaf:Person", "schema:Person"],
     "foaf:name": { "@value": "Michael Thornburgh", "@language": "en-us" },
     "foaf:nick": "Mike",
@@ -24,12 +22,11 @@
     "schema:worksFor": {
         "@type": "schema:Corporation",
         "schema:name": "Example Corp.",
-        "schema:employee": { "@id": "#me" }
+        "schema:employee": { "@id": "card#me" }
     },
     "@included": [
-        { "@id": "", "@type": "foaf:PersonalProfileDocument", "foaf:primaryTopic": { "@id": "#me" } },
+        { "@id": "", "@type": "foaf:PersonalProfileDocument", "foaf:primaryTopic": { "@id": "card#me" } },
         { "@id": "_:b86", "foaf:knows": { "@id": "_:b99" } },
-        { "@id": "_:b99", "foaf:knows": { "@id": "_:b86" } },
-        { "@id": "example.jsonld#me", "owl:sameAs": { "@id": "#me" } }
+        { "@id": "_:b99", "foaf:knows": { "@id": "_:b86" } }
     ]
 }

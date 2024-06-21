@@ -32,13 +32,12 @@ async function doLoad() {
 		const rawText = await response.text();
 		inputDoc.innerText = rawText;
 		const doc = JSON.parse(rawText);
-		const graph = new com_zenomt_JSONLD_Terse(doc, { documentUri:docUri });
+		const graph = new com_zenomt_JSONLD_Terse(doc, { documentUri: response.url || docUri });
 		if(graph.get(rootUri))
 			graph.root = rootUri;
 		console.log("graph", graph);
 		console.log("root", graph.root);
 		console.log("nodes", graph.nodes);
-		console.log("effectiveRootContext", com_zenomt_JSONLD_Terse.effectiveRootContext(doc, { documentUri:docUri }));
 		expanded.innerText = graph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiteral: rawLiteral.checked });
 		for(const each of graph.asTriples())
 		{
@@ -54,7 +53,9 @@ async function doLoad() {
 			tr.appendChild(obj);
 			triples.appendChild(tr);
 		}
-		const mdGraph = com_zenomt_JSONLD_Terse.getAdjunct(doc, "@metadata", { documentUri:docUri });
+		let effectiveRootContext = com_zenomt_JSONLD_Terse.effectiveRootContext(doc, { documentUri:response.url || docUri });
+		console.log("effectiveRootContext", effectiveRootContext);
+		const mdGraph = new com_zenomt_JSONLD_Terse(doc?.["@metadata"], { fallbackContext:effectiveRootContext } );
 		console.log("metadata graph", mdGraph);
 		metadata.innerText = mdGraph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiteral: rawLiteral.checked });
 	} catch(e) { expanded.innerText = e.toString(); console.log(e); }
@@ -62,10 +63,12 @@ async function doLoad() {
 }
 
 function urlChanged() {
-	docUri = (new URL(docUrl.value || docUrl.placeholder, document.baseURI)).href;
-	baseOverride.placeholder = docUri;
-	rootUri = (new URL(baseOverride.value || docUri, docUri)).href;
-	computedRoot.value = rootUri;
+	try {
+		docUri = (new URL(docUrl.value || docUrl.placeholder, document.baseURI)).href;
+		rootUri = (new URL(baseOverride.value || docUri, docUri)).href;
+		baseOverride.placeholder = docUri;
+		computedRoot.value = rootUri;
+	} catch(e) { console.log(e); }
 }
 
 </script>

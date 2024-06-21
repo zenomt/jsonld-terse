@@ -2,10 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 class com_zenomt_JSONLD_Terse {
-	static getAdjunct (node, key, { documentUri, vocab, fallbackContext, maxDepth=64 } = {}) {
-		return new this(node?.[key], { fallbackContext:this.effectiveRootContext(node, { documentUri, vocab, fallbackContext }), maxDepth });
-	}
-
 	constructor(node, { documentUri, vocab, fallbackContext, maxDepth=64 } = {}) {
 		this._nodes = new Map();
 		this._literals = new Map();
