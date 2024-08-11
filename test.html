@@ -17,6 +17,23 @@ function linkify(uri, value) {
 	return spn;
 }
 
+function tableFromGraph(dst, graph) {
+	for(const each of graph.asTriples())
+	{
+		const tr = document.createElement("tr");
+		const sub = document.createElement("td");
+		sub.appendChild(linkify(each.subject, each.subject));
+		const pred = document.createElement("td");
+		pred.appendChild(linkify(each.predicate, each.predicate));;
+		const obj = document.createElement("td");
+		obj.appendChild(linkify(each._object["@id"] ?? (("@value" in each._object) && each._object["@type"]), JSON.stringify(each._object)));
+		tr.appendChild(sub);
+		tr.appendChild(pred);
+		tr.appendChild(obj);
+		dst.appendChild(tr);
+	}
+}
+
 async function doLoad() {
 	try {
 		loadButton.disabled = true;
@@ -25,9 +42,10 @@ async function doLoad() {
 		const canRelative = rootUriURL.origin && rootUriURL.origin != "null" && rootUriURL.pathname;
 		expanded.innerText = inputDoc.innerText = metadata.innerText = "";
 		triples.replaceChildren();
+		mdTriples.replaceChildren();
 		const response = await fetch(docUri, {
 			cache: "reload",
-			headers: { Accept: 'application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/jsonld-metadata"' }
+			headers: { Accept: 'application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"' }
 		});
 		const rawText = await response.text();
 		inputDoc.innerText = rawText;
@@ -39,25 +57,14 @@ async function doLoad() {
 		console.log("root", graph.root);
 		console.log("nodes", graph.nodes);
 		expanded.innerText = graph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiteral: rawLiteral.checked });
-		for(const each of graph.asTriples())
-		{
-			const tr = document.createElement("tr");
-			const sub = document.createElement("td");
-			sub.appendChild(linkify(each.subject, each.subject));
-			const pred = document.createElement("td");
-			pred.appendChild(linkify(each.predicate, each.predicate));;
-			const obj = document.createElement("td");
-			obj.appendChild(linkify(each._object["@id"] ?? (("@value" in each._object) && each._object["@type"]), JSON.stringify(each._object)));
-			tr.appendChild(sub);
-			tr.appendChild(pred);
-			tr.appendChild(obj);
-			triples.appendChild(tr);
-		}
+		tableFromGraph(triples, graph);
+
 		let effectiveRootContext = com_zenomt_JSONLD_Terse.effectiveRootContext(doc, { documentUri:response.url || docUri });
 		console.log("effectiveRootContext", effectiveRootContext);
 		const mdGraph = new com_zenomt_JSONLD_Terse(doc?.["@metadata"], { fallbackContext:effectiveRootContext } );
 		console.log("metadata graph", mdGraph);
 		metadata.innerText = mdGraph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiteral: rawLiteral.checked });
+		tableFromGraph(mdTriples, mdGraph);
 	} catch(e) { expanded.innerText = e.toString(); console.log(e); }
 	loadButton.disabled = false;
 }
@@ -86,6 +93,9 @@ function urlChanged() {
 	<option value="example4.jsonld"/>
 	<option value="example5.jsonld"/>
 	<option value="example6.jsonld"/>
+	<option value="https://zenomt.zenomt.com/jsonld-terse/example7/"/>
+	<option value="https://zenomt.zenomt.com/jsonld-terse/example7/page2"/>
+	<option value="https://zenomt.zenomt.com/jsonld-terse/example7/page3"/>
 	<option value="https://zenomt.zenomt.com/card#me"/>
 </datalist>
 
@@ -107,7 +117,12 @@ function urlChanged() {
 	<thead> <tr> <th>Subject</th> <th>Predicate</th> <th>Object</th> </tr> </thead>
 	<tbody id="triples" style="font-family: monospace"></tbody>
 </table>
-<h2>metadata graph</h2>
+<h2>metadata asTree</h2>
 <pre id="metadata"></pre>
+<h2>metadata asTriples</h2>
+<table style="border-spacing: 1em 0px; text-align: left">
+	<thead> <tr> <th>Subject</th> <th>Predicate</th> <th>Object</th> </tr> </thead>
+	<tbody id="mdTriples" style="font-family: monospace"></tbody>
+</table>
 
 </body>

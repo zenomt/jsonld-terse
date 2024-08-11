@@ -6,13 +6,13 @@
     },
     "@metadata": {
         "@context": {
-            "md": "http://zenomt.com/ns/jsonld-metadata#"
+            "api": "http://zenomt.com/ns/terse-api#"
         },
         "@id": "?cursor=2",
-        "@type": "md:Page",
-        "md:prevPage": { "@id": "?cursor=1" },
-        "md:nextPage": { "@id": "?cursor=3" },
-        "md:pageOf": { "@id": "example.jsonld", "md:etag": "abcd" }
+        "@type": "api:Page",
+        "api:prevPage": { "@id": "?cursor=1" },
+        "api:nextPage": { "@id": "?cursor=3" },
+        "api:pageOf": { "@id": "example.jsonld" }
     },
     "@id": "card#me",
     "@type": ["foaf:Person", "schema:Person"],

@@ -47,6 +47,11 @@ Documentation
 Documentation for the reference implementation is coming soon. Meanwhile,
 please see the [test page][] for an example of how to use it.
 
+Terse JSON-LD API
+-----------------
+A work-in-progress proposal for an HTTP API framework based on the Terse
+profile is described in [Terse JSON-LD API](api.md).
+
 Copyright Notice
 ----------------
 Copyright © 2024 Michael Thornburgh. All rights reserved.

@@ -1,0 +1,74 @@
+{
+    "@context": {
+        "@base": "http://zenomt.com/ns/terse-api",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "api": "#"
+    },
+
+    "@id": "",
+    "@type": "http://www.w3.org/2002/07/owl#Ontology",
+    "rdfs:comment": "Vocabulary for the Terse JSON-LD API.",
+
+    "@included": [
+        {
+            "@id": "api:Resource",
+            "@type": "rdfs:Class",
+            "rdfs:subClassOf": { "@id": "rdfs:Resource" },
+            "rdfs:comment": "An HTTP-addressable resource conforming to the Terse JSON-LD API."
+        },
+        {
+            "@id": "api:Page",
+            "@type": "rdfs:Class",
+            "rdfs:subClassOf": { "@id": "api:Resource" },
+            "rdfs:comment": "A resource that is an in-sequence page of a paged resource as defined by the Terse JSON-LD API."
+        },
+        {
+            "@id": "api:firstPage",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "api:Resource" },
+            "rdfs:range": { "@id": "api:Page" },
+            "rdfs:comment": "The first page of a paged resource."
+        },
+        {
+            "@id": "api:lastPage",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "api:Resource" },
+            "rdfs:range": { "@id": "api:Page" },
+            "rdfs:comment": "The last page of a paged resource."
+        },
+        {
+            "@id": "api:nextPage",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "api:Page" },
+            "rdfs:range": { "@id": "api:Page" },
+            "rdfs:comment": "The next in-sequence page of a paged resource."
+        },
+        {
+            "@id": "api:prevPage",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "api:Page" },
+            "rdfs:range": { "@id": "api:Page" },
+            "rdfs:comment": "The previous in-sequence page of a paged resource."
+        },
+        {
+            "@id": "api:pageOf",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "api:Page" },
+            "rdfs:range": { "@id": "api:Resource" },
+            "rdfs:comment": "The canonical resource of which this is a page."
+        },
+        {
+            "@id": "api:Container",
+            "@type": "rdfs:Class",
+            "rdfs:subClassOf": { "@id": "api:Resource" },
+            "rdfs:comment": "A Terse JSON-LD API Container."
+        },
+        {
+            "@id": "api:contains",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "api:Container" },
+            "rdfs:range": { "@id": "api:Resource" },
+            "rdfs:comment": "A member of a Container."
+        }
+    ]
+}
