@@ -280,7 +280,7 @@ dereference URIs at other origins while inadvertently using access credentials
 that don't belong with the other origins.
 
 
-  [Linked Data]: https://www.w3.org/wiki/LinkedData
+  [Linked Data]: https://www.w3.org/DesignIssues/LinkedData
   [jsonld-terse]: https://zenomt.github.io/jsonld-terse/
   [RDF]: https://www.w3.org/RDF/
   [graph]: https://www.w3.org/TR/rdf11-concepts/#section-rdf-graph

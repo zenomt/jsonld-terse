@@ -61,7 +61,7 @@ Copyright © 2024 Michael Thornburgh. All rights reserved.
 
   [JSON-LD]: https://json-ld.org/
   [JSON]: https://www.rfc-editor.org/rfc/rfc8259
-  [Linked Data]: https://www.w3.org/wiki/LinkedData
+  [Linked Data]: https://www.w3.org/DesignIssues/LinkedData
   [RDF]: https://www.w3.org/RDF/
   [datasets]: https://www.w3.org/TR/rdf11-concepts/#section-dataset
   [This project]: https://github.com/zenomt/jsonld-terse

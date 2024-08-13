@@ -256,7 +256,7 @@ _:b0 <http://schema.org/image> <http://manu.sporny.org/images/manu.png> .
 
   [JSON-LD]: https://json-ld.org/
   [JSON]: https://www.rfc-editor.org/rfc/rfc8259
-  [Linked Data]: https://www.w3.org/wiki/LinkedData
+  [Linked Data]: https://www.w3.org/DesignIssues/LinkedData
   [RDF]: https://www.w3.org/RDF/
   [graph]: https://www.w3.org/TR/rdf11-concepts/#section-rdf-graph
   [datasets]: https://www.w3.org/TR/rdf11-concepts/#section-dataset
