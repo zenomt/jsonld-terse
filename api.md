@@ -15,7 +15,9 @@ appear in all capitals, as shown here.
 This memo assumes familiarity with the concepts and terminology of
 [Linked Data][] and the [Resource Description Framework (RDF)][RDF],
 including the terms [graph][],
-[triple, subject, predicate, object, node](https://www.w3.org/TR/rdf11-concepts/#dfn-rdf-triple)
+[default graph](https://www.w3.org/TR/rdf11-concepts/#section-dataset),
+[merge](https://www.w3.org/TR/rdf11-mt/#shared-blank-nodes-unions-and-merges),
+[triple, subject, predicate, object, node](https://www.w3.org/TR/rdf11-concepts/#dfn-rdf-triple),
 and [blank node](https://www.w3.org/TR/rdf11-concepts/#dfn-blank-node);
 and the [Terse Profile for JSON-LD][jsonld-terse] serialization syntax and
 semantics for RDF graphs.
