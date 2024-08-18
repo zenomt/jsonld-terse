@@ -8,6 +8,7 @@
     "@id": "",
     "@type": "http://www.w3.org/2002/07/owl#Ontology",
     "rdfs:comment": "Vocabulary for the Terse JSON-LD API.",
+    "rdfs:seeAlso": { "@id": "https://zenomt.github.io/jsonld-terse/api.html" },
 
     "@included": [
         {
