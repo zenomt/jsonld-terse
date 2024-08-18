@@ -115,15 +115,15 @@ nodes in the merged graph.
 
 The canonical URI for the paged resource **MAY** include `api:firstPage` and
 `api:lastPage` links in the metadata graph, if appropriate and known. The
-first and last pages **SHALL** be for the same pagination as the current page,
-if that is defined.
+first and last pages **SHALL** be for the same pagination and result as the
+current page, if that is defined.
 
-When requesting the canonical URI of a paged resource with `GET` or `QUERY`,
-if the "first"-ness involves a request-specific state or cursor, then the
-first page **SHOULD** have a URI distict from the resource's canonical URI,
-to avoid inadvertently creating new state or cursors if the first page is
-requested again. When answering such a request, in addition to providing the
-distinct URI in an `api:firstPage` metadata link, the server **SHOULD** either
+When requesting a paged resource with `GET` or `QUERY`, if the "first"-ness
+involves a request-specific state or cursor, then the first page **SHOULD**
+have a URI distinct from the resource's canonical URI, to avoid inadvertently
+creating new state or cursors if the first page is requested again. When
+answering such a request, in addition to providing the distinct URI in an
+`api:firstPage` metadata link, the server **SHOULD** either
 
 * include a `Content-Location` response header linking to the first page's
   distinct URI; or
