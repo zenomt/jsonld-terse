@@ -187,15 +187,19 @@ A container or the container resource's graph **MAY** have other triples
 including addtional `@type`s, according to the application.
 
 If supported, a new member is added to a container by a `POST` to the container's
-URI.
+URI. If supported, the server might (but is under no obligation to) honor a
+[`Slug`](https://www.rfc-editor.org/rfc/rfc5023.html#section-9.7) request
+header, if present, for influencing the URI of the new member.
 
 If supported, a member is deleted and removed from the container by a `DELETE`
 of the member's URI.
 
-The container's URI does not support `PUT`. `PATCH` **MAY** be supported only
-for modifying application-specific non-container attributes of the container
-resource; that is, containment `api:contains` relations **MUST NOT** be
-modified with `PATCH`.
+An existing container's URI **SHOULD NOT** support `PUT`. The server **MAY**
+permit creation of a new empty container resource using `PUT` to a sub-path
+of an appropriate parent resource. `PATCH` of a container **MAY** be supported,
+but only for modifying application-specific non-container attributes of the
+container resource; that is, containment `api:contains` relations **MUST NOT**
+be modified with `PATCH`.
 
 If supported, the container and (recursively) its contained members are deleted
 by a `DELETE` of the container's URI.
@@ -203,11 +207,11 @@ by a `DELETE` of the container's URI.
 Modifying and Deleting Resources
 --------------------------------
 If supported, an existing resource can be partially modified using the `PATCH`
-method. The effect (not necessarily the implementation) is that for each
-subject and predicate in the request's default graph serialization, all
-triples with the same subject and predicate are deleted from the resource's
-graph, and then all triples from the request body's default graph are merged
-to the resource's graph.
+method. The effect is that for each subject and predicate represented in the
+request's default graph serialization, all triples with the same subject and
+predicate in the resource's graph are replaced with the corresponding triples
+from the request body's default graph. Note that the serialization permits
+identifying a subject and predicate with no objects (and therefore no triples).
 
 Example: Given an existing resource state for `https://example.com/api/example`
 (expressed here as [N-Triples][])
