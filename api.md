@@ -42,14 +42,14 @@ Normal RESTful use of methods:
 * [`HEAD`](https://www.rfc-editor.org/rfc/rfc9110.html#name-head)
 * [`GET`](https://www.rfc-editor.org/rfc/rfc9110.html#name-get)
 * [`QUERY`][QUERY]
-  - query body TBD if application-specific or even jsonld-terse
+  - query body media type is application and resource specific
   - `Accept-Query` response header **SHOULD** be provided when supported
 * [`POST`](https://www.rfc-editor.org/rfc/rfc9110.html#name-post)
   - create a new item in an `api:Container`
   - when creating a new item, the base URI will be the URI of the new resource. don't set an `@base` in `POST` body
   - application-specific when `POST`ing to a non-container
 * [`PATCH`][PATCH]
-  - replace/insert/delete selected triples
+  - [replace/insert/delete selected triples](#modifying-and-deleting-resources)
 * [`PUT`](https://www.rfc-editor.org/rfc/rfc9110.html#name-put)
 * [`DELETE`](https://www.rfc-editor.org/rfc/rfc9110.html#name-delete)
 
@@ -67,21 +67,28 @@ a single top-level JSON Object.
 The JSON Object encodes the default RDF Graph. It **MAY** also contain an
 `@metadata` member encoding a supplementary metadata graph.
 
-If the request was redirected, the response graph **SHALL** be considered
-authoritative for subjects at the original target URI and the final response
-URI. Relative URI references are resolved using the final response URI as the
-base URI. Note: other intermediate redirects are not available to browser
-JavaScript.
+A response graph **SHALL** be considered authoritative for subjects at the
+request URI (regardless of query parameters). A response can delegate authority
+for its URI namespace to other URIs by using the `Location` and `Content-Location`
+response headers, as might be encountered for example with `3XX` redirects,
+responses to a `QUERY`, or paged responses.
+
+For example, if a request was redirected with a `303 See Other`, the final
+response graph is authoritative for subjects at the original target URI and
+the final response URI. Note: any other automatically-followed intermediate
+redirect URIs are not visible to browser JavaScript.
+
+Relative URI references in a response are resolved using the final response
+URI as the base URI.
 
 As an optimization to avoid additional HTTP transactions, a response graph
 **MAY** include triples that might be useful to the client for subjects at
-other URIs.  Clients **SHOULD** consider the response authoritative for
-subjects at sub-paths of the response's URI or of the original target URI,
-regardless of the query portion; however, clients **MUST NOT** assume that
-the response graph includes _all_ of the triples from the other resources'
-graphs.  Whether or not a client ought to believe extra included triples whose
-subjects are outside of the authoritative hierarchy at the same origin, or
-from different origins, is application specific.
+other URIs. Clients **SHOULD** consider the response authoritative for subjects
+at sub-paths of the response's authoritative URIs; however, clients
+**MUST NOT** assume that the response graph includes _all_ of the triples
+from the other resources' graphs. Whether or not a client ought to believe
+extra included triples whose subjects are outside of the authoritative
+hierarchies, or from different origins, is application specific.
 
 Metadata and Paging
 -------------------
