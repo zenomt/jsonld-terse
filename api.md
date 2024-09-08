@@ -88,7 +88,7 @@ As an optimization to avoid additional HTTP transactions, a response graph
 **MAY** include triples that might be useful to the client for subjects at
 other URIs. Clients **SHOULD** consider the response authoritative for subjects
 at sub-paths of the response's authoritative URIs; however, clients
-**MUST NOT** assume that the response graph includes _all_ of the triples
+**MUST NOT** presume that the response graph includes _all_ of the triples
 from the other resources' graphs. Whether or not a client ought to believe
 extra included triples whose subjects are outside of the authoritative
 hierarchies, or from different origins, is application specific.
