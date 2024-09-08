@@ -27,8 +27,10 @@ meanings described in
 [Section 9.2.1 of RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.1).
 
 The prefix `api:` stands for
-[`http://zenomt.com/ns/terse-api#`](http://zenomt.com/ns/terse-api#), and the
-prefix `ex:` stands for `https://example.com/ns/`.
+[`http://zenomt.com/ns/terse-api#`](http://zenomt.com/ns/terse-api#),
+the prefix `rdfs:` stands for
+[`http://www.w3.org/2000/01/rdf-schema#`](http://www.w3.org/2000/01/rdf-schema#),
+and the prefix `ex:` stands for `https://example.com/ns/`.
 
 HTTP Requests and Responses
 ---------------------------
@@ -70,8 +72,9 @@ The JSON Object encodes the default RDF Graph. It **MAY** also contain an
 A response graph **SHALL** be considered authoritative for subjects at the
 request URI (regardless of query parameters). A response can delegate authority
 for its URI namespace to other URIs by using the `Location` and `Content-Location`
-response headers, as might be encountered for example with `3XX` redirects,
-responses to a `QUERY`, or paged responses.
+response headers, `rdfs:seeAlso` links, and [paging links](#metadata-and-paging),
+as might be encountered for example with `3XX` redirects, responses to a
+`QUERY`, or paged responses.
 
 For example, if a request was redirected with a `303 See Other`, the final
 response graph is authoritative for subjects at the original target URI and
@@ -109,8 +112,8 @@ If the response represents a page of a multi-page resource:
 
 The graph of a paged resource is the merge of the default graphs of its pages.
 The merged graph **SHALL** be considered authoritative for triples with
-subjects at the original request URI as well as the target and response URIs
-of each page.
+subjects at or at sub-paths of the authoritative URIs of the resource and
+each of its pages.
 
 Some applications might intend for just a subset of pages to be processed at
 once, rather than merging them all together to a single graph before processing.
