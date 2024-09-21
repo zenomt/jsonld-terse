@@ -298,7 +298,7 @@ that don't belong with the other origins.
   [jsonld-terse]: https://zenomt.github.io/jsonld-terse/
   [RDF]: https://www.w3.org/RDF/
   [graph]: https://www.w3.org/TR/rdf11-concepts/#section-rdf-graph
-  [QUERY]: https://httpwg.org/http-extensions/draft-ietf-httpbis-safe-method-w-body.html
+  [QUERY]: https://datatracker.ietf.org/doc/draft-ietf-httpbis-safe-method-w-body/
   [PATCH]: https://www.rfc-editor.org/rfc/rfc5789.html
   [BCP 14]: https://www.rfc-editor.org/info/bcp14
   [RFC2119]: https://www.rfc-editor.org/rfc/rfc2119
