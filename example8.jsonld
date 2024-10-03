@@ -1,0 +1,43 @@
+{
+    "@context": {
+        "@base": "http://example.com/ns",
+        "ex": "#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "api": "http://zenomt.com/ns/terse-api#",
+        "owl": "https://www.w3.org/2002/07/owl#"
+    },
+
+    "@id": "",
+    "@type": "owl:Ontology",
+    "rdfs:comment": "Example ontology",
+
+    "@included": [
+        {
+            "@id": "ex:Resource",
+            "@type": "rdfs:Class",
+            "rdfs:subClassOf": { "@id": "api:Resource" }
+        },
+        {
+            "@id": "ex:Item",
+            "@type": "rdfs:Class",
+            "rdfs:subClassOf": { "@id": "ex:Resource" }
+        },
+        {
+            "@id": "ex:stuff",
+            "@type": "rdfs:Property",
+            "rdfs:comment": "My stuff in an api:Container of ex:Items.",
+            "rdfs:domain": { "@id": "ex:Resource" },
+            "rdfs:range": {
+                "@type": "owl:Class",
+                "owl:intersectionOf": { "@list": [
+                    { "@id": "api:Container" },
+                    {
+                        "@type": "owl:Restriction",
+                        "owl:onProperty": { "@id": "api:contains" },
+                        "owl:allValuesFrom": { "@id": "ex:Item" }
+                    }
+                ] }
+            }
+        }
+    ]
+}

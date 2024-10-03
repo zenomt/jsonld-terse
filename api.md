@@ -174,6 +174,7 @@ other pages because it contains no blank nodes.
         },
         "@id": ".",
         "@type": "api:Container",
+        "api:containerOf": { "@id": "ex:Item },
         "api:contains": [
             { "@id": "4", "@type": "ex:Item", "ex:name": "example item 4" },
             { "@id": "5", "@type": "ex:Item", "ex:name": "example item 5" },
@@ -192,6 +193,11 @@ triple whose object's URI is not at a sub-path of the container's URI.
 A container **MUST** have an `@type` of `api:Container`.
 
 A container's members are enumerated by `api:contains`.
+
+A container **MAY** have `api:containerOf` triples to advertise potential
+types for the container's members. These triples are optional, but may be
+useful for understanding the types of members that can be added with `POST`
+as described below.
 
 A container or the container resource's graph **MAY** have other triples
 including addtional `@type`s, according to the application.

@@ -70,6 +70,13 @@
             "rdfs:domain": { "@id": "api:Container" },
             "rdfs:range": { "@id": "api:Resource" },
             "rdfs:comment": "A member of a Container."
+        },
+        {
+            "@id": "api:containerOf",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "api:Container" },
+            "rdfs:range": { "@id": "rdfs:Class" },
+            "rdfs:comment": "One of the expected types for members of this container."
         }
     ]
 }
