@@ -34,9 +34,16 @@ and the prefix `ex:` stands for `https://example.com/ns/`.
 
 HTTP Requests and Responses
 ---------------------------
-Content-Type: `application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"`
+This memo defines a profile of additional constraints on the Terse Profile
+for JSON-LD, as well as additional semantics. This derived profile is identified
+by the URI
+[`http://zenomt.com/ns/terse-api`][TERSE-API], and it is signaled in `Content-Type`
+and other places by adding its URI to the `profile` parameter of the Terse
+JSON-LD media-type:
 
-Requests and responses **SHOULD** use `Accept` with that content-type where
+> `application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"`
+
+Requests and responses **SHOULD** use `Accept` with that media-type where
 appropriate to indicate support of this API.
 
 Normal RESTful use of methods:
@@ -44,14 +51,14 @@ Normal RESTful use of methods:
 * [`HEAD`](https://www.rfc-editor.org/rfc/rfc9110.html#name-head)
 * [`GET`](https://www.rfc-editor.org/rfc/rfc9110.html#name-get)
 * [`QUERY`][QUERY]
-  - query body media type is application and resource specific
+  - Query body media-type is application and resource specific
   - `Accept-Query` response header **SHOULD** be provided when supported
 * [`POST`](https://www.rfc-editor.org/rfc/rfc9110.html#name-post)
-  - create a new item in an `api:Container`
-  - when creating a new item, the base URI will be the URI of the new resource. don't set an `@base` in `POST` body
-  - application-specific when `POST`ing to a non-container
+  - Create a new item in an `api:Container`
+  - When creating a new item, the base URI will be the URI of the new resource. Don't set an `@base` in `POST` body
+  - Application-specific when `POST`ing to a non-container
 * [`PATCH`][PATCH]
-  - [replace/insert/delete selected triples](#modifying-and-deleting-resources)
+  - [Replace/insert/delete selected triples](#modifying-and-deleting-resources)
 * [`PUT`](https://www.rfc-editor.org/rfc/rfc9110.html#name-put)
 * [`DELETE`](https://www.rfc-editor.org/rfc/rfc9110.html#name-delete)
 
@@ -59,7 +66,11 @@ Use of the `Allow` response header is **RECOMMENDED**. It lists understood/suppo
 methods, not necessarily authorized methods.
 
 Normal RESTful use of HTTP errors: (`4XX`, `5XX`), **OPTIONAL** app-specific
-response bodies.
+response bodies. If the error response body is intended to be machine-readable,
+it **SHOULD** use either an appropriate app-specific RDF vocabulary expressed
+as Terse JSON-LD with the Terse API’s content-type, or the JSON form of
+[Problem Details for HTTP APIs][RFC9457] \[[RFC9457][]\] with content-type
+`application/problem+json`.
 
 Message Body
 ------------
@@ -67,7 +78,7 @@ Request and response bodies **SHALL** be Terse JSON-LD documents encoded as
 a single top-level JSON Object.
 
 The JSON Object encodes the default RDF Graph. It **MAY** also contain an
-`@metadata` member encoding a supplementary metadata graph.
+`@metadata` member encoding a supplementary [metadata graph](#metadata-and-paging).
 
 A response graph **SHALL** be considered authoritative for subjects at the
 request URI (regardless of query parameters). A response can delegate authority
@@ -278,14 +289,13 @@ The application and the shapes & semantics of the resources determine whether
 the requested modifications are valid and allowed. A successful modification
 **SHOULD** answer `204 No Content`; unsuccessful or invalid modifications
 **SHOULD** answer the most appropriate `4XX` status code. If possible,
-successful `PATCH` or `PUT` `204` responses **SHOULD** include an `ETag` and
-a `Content-Location` (likely the same as the request URI) for the new state
-of the resource.
+successful `PATCH` or `PUT` `204` responses **SHOULD** include an `ETag` for
+the new state of the resource.
 
 Conditional Requests
 --------------------
 Where appropriate, servers **SHOULD** support conditional requests by supplying
-`ETag`s in responses, and supporting `If-Match` and `If-None-Match` request
+`ETag`s in responses and supporting `If-Match` and `If-None-Match` request
 headers, especially for unsafe methods.
 
 Security and Privacy Considerations
@@ -293,7 +303,7 @@ Security and Privacy Considerations
 Responses can include triples with subjects or objects at different origins,
 or outside the authoritative realm, of the response's URI. Clients **SHOULD**
 take care to not _inadvertently_ dereference URIs beyond the authority of the
-server from which they were learned, particularly for unsafe methods.
+server from which they were learned, particularly with unsafe methods.
 
 To avoid leaking access credentials, clients **SHOULD** take care to not
 dereference URIs at other origins while inadvertently using access credentials
@@ -309,4 +319,6 @@ that don't belong with the other origins.
   [BCP 14]: https://www.rfc-editor.org/info/bcp14
   [RFC2119]: https://www.rfc-editor.org/rfc/rfc2119
   [RFC8174]: https://www.rfc-editor.org/rfc/rfc8174
+  [RFC9457]: https://www.rfc-editor.org/rfc/rfc9457
   [N-Triples]: https://www.w3.org/TR/n-triples/
+  [TERSE-API]: http://zenomt.com/ns/terse-api
