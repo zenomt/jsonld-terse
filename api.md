@@ -68,7 +68,7 @@ methods, not necessarily authorized methods.
 Normal RESTful use of HTTP errors: (`4XX`, `5XX`), **OPTIONAL** app-specific
 response bodies. If the error response body is intended to be machine-readable,
 it **SHOULD** use either an appropriate app-specific RDF vocabulary expressed
-as Terse JSON-LD with the Terse API’s content-type, or the JSON form of
+as Terse JSON-LD with the Terse API's content-type, or the JSON form of
 [Problem Details for HTTP APIs][RFC9457] \[[RFC9457][]\] with content-type
 `application/problem+json`.
 
@@ -214,19 +214,29 @@ A container or the container resource's graph **MAY** have other triples
 including addtional `@type`s, according to the application.
 
 If supported, a new member is added to a container by a `POST` to the container's
-URI. If supported, the server might (but is under no obligation to) honor a
-[`Slug`](https://www.rfc-editor.org/rfc/rfc5023.html#section-9.7) request
-header, if present, for influencing the URI of the new member.
+URI. The base URI for resolving relative URI references in the request body
+will be the URI of the new member. The server might (but is not obliged to)
+honor a [`Slug`](https://www.rfc-editor.org/rfc/rfc5023.html#section-9.7)
+request header, if present, for influencing a portion of the URI for the new
+member. If the `Slug` header is present and the server incorporates it, but
+the resulting URI is already in use, the server **SHOULD** refuse the request
+with status `409 Conflict`. When answering `409 Conflict`, the server **SHOULD**
+include a `Location` response header giving the URI of the conflicting member.
 
 If supported, a member is deleted and removed from the container by a `DELETE`
 of the member's URI.
 
-An existing container's URI **SHOULD NOT** support `PUT`. The server **MAY**
-permit creation of a new empty container resource using `PUT` to a sub-path
-of an appropriate parent resource. `PATCH` of a container **MAY** be supported,
-but only for modifying application-specific non-container attributes of the
-container resource; that is, containment `api:contains` relations **MUST NOT**
-be modified with `PATCH`.
+The server **MAY** permit creation of a new empty container resource using
+`PUT` to a sub-path of an appropriate parent resource.
+
+An existing container's URI **SHOULD NOT** support `PUT`. The server **SHOULD**
+respond to a `PUT` to an existing container with `409 Conflict`, unless the
+request fails a precondition (such as `If-None-Match: *`) in which case
+`412 Precondition Failed` takes precedence.
+
+`PATCH` of a container **MAY** be supported, but only for modifying
+application-specific non-container attributes of the container resource; that
+is, containment `api:contains` relations **MUST NOT** be modified with `PATCH`.
 
 If supported, the container and (recursively) its contained members are deleted
 by a `DELETE` of the container's URI.
@@ -234,44 +244,72 @@ by a `DELETE` of the container's URI.
 Modifying and Deleting Resources
 --------------------------------
 If supported, an existing resource can be partially modified using the `PATCH`
-method. The effect is that for each subject and predicate represented in the
-request's default graph serialization, all triples with the same subject and
-predicate in the resource's graph are replaced with the corresponding triples
-from the request body's default graph. Note that the serialization permits
-identifying a subject and predicate with no objects (and therefore no triples).
+method. The resource's graph is transformed as though the following steps
+were taken with the triples from the request graph:
+
+1. For any triple `{ ?S  api:void  ?O }`, remove  all triples in the resource's
+   graph having subject `?S`; then
+
+2. For any triple `{ ?S  ?P  api:void }`, remove all triples in the resource's
+   graph having subject `?S` _and_ predicate `?P`; then
+
+3. Merge all other triples of the request graph into the resource's graph.
+
+Note: the actual method by which a server implements the above transformation
+is not mandatated by this memo; for example, a remove-then-merge for a subject
+or subject+predicate might be implemented as an updates/replacements to the
+data model, rather than independent deletes and inserts.
 
 Example: Given an existing resource state for `https://example.com/api/example`
 (expressed here as [N-Triples][])
 
-    <https://example.com/api/example>  <http://example.com/ns/foo>  "foo".
-    <https://example.com/api/example>  <http://example.com/ns/bar>  "bar1".
-    <https://example.com/api/example>  <http://example.com/ns/bar>  "bar2".
-    <https://example.com/api/example>  <http://example.com/ns/bif>   4.
+    <https://example.com/api/example#a>  <http://example.com/ns/foo>  "foo".
+    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar1".
+    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar2".
+    <https://example.com/api/example#a>  <http://example.com/ns/bif>   4.
 
-The following patch says that the `ex:foo` triple should be removed, that one
-_new_ `ex:bar` triple should be added, and two new `ex:baz` triples should
-be added, while leaving the `ex:bif` triple alone:
+    <https://example.com/api/example#b>  <http://example.com/ns/zap>   5.
+    <https://example.com/api/example#b>  <http://example.com/ns/zoo>  "elephant".
+
+    <https://example.com/api/example#c>  <http://example.com/ns/zap>   99.
+    <https://example.com/api/example#c>  <http://example.com/ns/zoo>  "giraffe".
+
+The following patch says to remove the `ex:foo` triple from `#a`, add a new
+`ex:bar` triple to `#a`, add two brand new `ex:baz` triples to `#a`, replace
+the `ex:bif` triple at `#a` with the new value `"6"`, delete all triples
+with subject `#b`, and leave all of `#c`'s triples untouched:
 
     PATCH /api/example HTTP/1.1
     Host: example.com
     Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
 
     {
-        "@context": { "ex": "http://example.com/ns" },
-        "@id": "",
-        "ex:foo": [ ],
-        "ex:bar: [ "bar1", "bar2", "bar3" ],
-        "ex:baz": [ "baz1", "baz2" ]
+        "@context": {
+            "ex": "http://example.com/ns",
+            "api": "http://zenomt.com/ns/terse-api#"
+        },
+        "@id": "#a",
+        "ex:foo": { "@id": "api:void" },
+        "ex:bar: "bar3",
+        "ex:baz": [ "baz1", "baz2" ],
+        "ex:bif": [ { "@id: "api:void" }, "6" ],
+
+        "@included": [
+            { "@id": "#b", "api:void": null }
+        ]
     }
 
 And might result, if there were no problems, in the resource now having state
 
-    <https://example.com/api/example>  <http://example.com/ns/bar>  "bar1".
-    <https://example.com/api/example>  <http://example.com/ns/bar>  "bar2".
-    <https://example.com/api/example>  <http://example.com/ns/bar>  "bar3".
-    <https://example.com/api/example>  <http://example.com/ns/baz>  "baz1".
-    <https://example.com/api/example>  <http://example.com/ns/baz>  "baz2".
-    <https://example.com/api/example>  <http://example.com/ns/bif>   4.
+    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar1".
+    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar2".
+    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar3".
+    <https://example.com/api/example#a>  <http://example.com/ns/baz>  "baz1".
+    <https://example.com/api/example#a>  <http://example.com/ns/baz>  "baz2".
+    <https://example.com/api/example#a>  <http://example.com/ns/bif>   6.
+
+    <https://example.com/api/example#c>  <http://example.com/ns/zap>   99.
+    <https://example.com/api/example#c>  <http://example.com/ns/zoo>  "giraffe".
 
 If supported, a resource's state is created or completely replaced by a `PUT`
 request body's default graph.
@@ -286,11 +324,9 @@ sub-resources with distinct URIs that can be `POST`ed, `PATCH`ed, `PUT`, or
 `DELETE`d independently.
 
 The application and the shapes & semantics of the resources determine whether
-the requested modifications are valid and allowed. A successful modification
-**SHOULD** answer `204 No Content`; unsuccessful or invalid modifications
-**SHOULD** answer the most appropriate `4XX` status code. If possible,
-successful `PATCH` or `PUT` `204` responses **SHOULD** include an `ETag` for
-the new state of the resource.
+the requested modifications are valid and allowed. If possible, successful
+responses to modifications **SHOULD** include an `ETag` for the new state of
+the resource.
 
 Conditional Requests
 --------------------

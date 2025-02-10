@@ -77,6 +77,16 @@
             "rdfs:domain": { "@id": "api:Container" },
             "rdfs:range": { "@id": "rdfs:Class" },
             "rdfs:comment": "One of the expected types for members of this container."
+        },
+        {
+            "@id": "api:Void",
+            "@type": "rdfs:Class",
+            "rdfs:comment": "The singleton class of api:void."
+        },
+        {
+            "@id": "api:void",
+            "@type": "api:Void",
+            "rdfs:comment": "(adj) having no value; (n) the anti-value None; (v) to empty or erase the value(s) of, to invalidate."
         }
     ]
 }
