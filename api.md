@@ -85,7 +85,7 @@ request URI (regardless of query parameters). A response can delegate authority
 for its URI namespace to other URIs by using the `Location` and `Content-Location`
 response headers, `rdfs:seeAlso` links, and [paging links](#metadata-and-paging),
 as might be encountered for example with `3XX` redirects, responses to a
-`QUERY`, or paged responses.
+`POST` or `QUERY`, or paged responses.
 
 For example, if a request was redirected with a `303 See Other`, the final
 response graph is authoritative for subjects at the original target URI and
@@ -260,56 +260,73 @@ is not mandatated by this memo; for example, a remove-then-merge for a subject
 or subject+predicate might be implemented as an updates/replacements to the
 data model, rather than independent deletes and inserts.
 
-Example: Given an existing resource state for `https://example.com/api/example`
-(expressed here as [N-Triples][])
+Example: Given an existing resource state for `https://mike.example.com/card`
 
-    <https://example.com/api/example#a>  <http://example.com/ns/foo>  "foo".
-    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar1".
-    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar2".
-    <https://example.com/api/example#a>  <http://example.com/ns/bif>   4.
+    {
+        "@context": {
+            "foaf": "http://xmlns.com/foaf/0.1/",
+            "ex": "http://example.com/ns#"
+        },
+        "@id": "https://mike.example.com/card",
+        "@type": "foaf:PersonalProfileDocument",
+        "foaf:primaryTopic": {
+            "@id": "https://mike.example.com/card#me",
+            "@type": "foaf:Person",
+            "foaf:name": "Michael Thornburgh",
+            "foaf:nick": [ "Mike", "zenomt" ],
+            "ex:extras": {
+                "@id": "https://mike.example.com/card#extra",
+                "@type": "ex:Extras",
+                "ex:comment": "Some Extras"
+            }
+        }
+    }
 
-    <https://example.com/api/example#b>  <http://example.com/ns/zap>   5.
-    <https://example.com/api/example#b>  <http://example.com/ns/zoo>  "elephant".
 
-    <https://example.com/api/example#c>  <http://example.com/ns/zap>   99.
-    <https://example.com/api/example#c>  <http://example.com/ns/zoo>  "giraffe".
+The following patch says to add an additional `@type` of `schema:Person` to `#me`,
+remove the nickname `"zenomt"` from `#me` but leave `"Mike"`, remove the `ex:extras`
+link from `#me`, and remove all triples with subject `#extra`:
 
-The following patch says to remove the `ex:foo` triple from `#a`, add a new
-`ex:bar` triple to `#a`, add two brand new `ex:baz` triples to `#a`, replace
-the `ex:bif` triple at `#a` with the new value `"6"`, delete all triples
-with subject `#b`, and leave all of `#c`'s triples untouched:
-
-    PATCH /api/example HTTP/1.1
-    Host: example.com
+    PATCH /card HTTP/1.1
+    Host: mike.example.com
     Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
 
     {
         "@context": {
-            "ex": "http://example.com/ns",
-            "api": "http://zenomt.com/ns/terse-api#"
+            "api": "http://zenomt.com/ns/terse-api#",
+            "foaf": "http://xmlns.com/foaf/0.1/",
+            "schema": "http://schema.org/",
+            "ex": "http://example.com/ns#"
         },
-        "@id": "#a",
-        "ex:foo": { "@id": "api:void" },
-        "ex:bar: "bar3",
-        "ex:baz": [ "baz1", "baz2" ],
-        "ex:bif": [ { "@id: "api:void" }, "6" ],
+        "@id": "#me",
+        "@type": "schema:Person",
+        "foaf:nick": [ { "@id": "api:void" }, "Mike" ],
+        "ex:extras": { "@id": "api:void" },
 
         "@included": [
-            { "@id": "#b", "api:void": null }
+            {
+                "@id": "#extra",
+                "api:void": null
+            }
         ]
     }
 
 And might result, if there were no problems, in the resource now having state
 
-    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar1".
-    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar2".
-    <https://example.com/api/example#a>  <http://example.com/ns/bar>  "bar3".
-    <https://example.com/api/example#a>  <http://example.com/ns/baz>  "baz1".
-    <https://example.com/api/example#a>  <http://example.com/ns/baz>  "baz2".
-    <https://example.com/api/example#a>  <http://example.com/ns/bif>   6.
-
-    <https://example.com/api/example#c>  <http://example.com/ns/zap>   99.
-    <https://example.com/api/example#c>  <http://example.com/ns/zoo>  "giraffe".
+    {
+        "@context": {
+            "foaf": "http://xmlns.com/foaf/0.1/",
+            "schema": "http://schema.org/"
+        },
+        "@id": "https://mike.example.com/card",
+        "@type": "foaf:PersonalProfileDocument",
+        "foaf:primaryTopic": {
+            "@id": "https://mike.example.com/card#me",
+            "@type": [ "foaf:Person", "schema:Person" ],
+            "foaf:name": "Michael Thornburgh",
+            "foaf:nick": "Mike"
+        }
+    }
 
 If supported, a resource's state is created or completely replaced by a `PUT`
 request body's default graph.
