@@ -30,7 +30,7 @@ The prefix `api:` stands for
 [`http://zenomt.com/ns/terse-api#`](http://zenomt.com/ns/terse-api#),
 the prefix `rdfs:` stands for
 [`http://www.w3.org/2000/01/rdf-schema#`](http://www.w3.org/2000/01/rdf-schema#),
-and the prefix `ex:` stands for `https://example.com/ns/`.
+and the prefix `ex:` stands for `https://example.com/ns#`.
 
 HTTP Requests and Responses
 ---------------------------
@@ -170,7 +170,7 @@ other pages because it contains no blank nodes.
     {
         "@context": {
             "api": "http://zenomt.com/ns/terse-api#",
-            "ex": "http://example.com/ns/"
+            "ex": "http://example.com/ns#"
         },
         "@metadata": {
             "@id": "",
