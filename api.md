@@ -257,8 +257,8 @@ were taken with the triples from the request graph:
 
 Note: the actual method by which a server implements the above transformation
 is not mandatated by this memo; for example, a remove-then-merge for a subject
-or subject+predicate might be implemented as an updates/replacements to the
-data model, rather than independent deletes and inserts.
+or subject+predicate might be implemented as updates/replacements to the data
+model, rather than independent deletes and inserts.
 
 Example: Given an existing resource state for `https://mike.example.com/card`
 
