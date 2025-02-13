@@ -165,7 +165,7 @@ other pages because it contains no blank nodes.
  
     HTTP/1.1 200 OK
     Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
-    Date: Sat, 10 Aug 2024 19:04:48 GMT
+    Date: Thu, 13 Feb 2025 04:03:10 GMT
 
     {
         "@context": {
@@ -262,20 +262,32 @@ model, rather than independent deletes and inserts.
 
 Example: Given an existing resource state for `https://mike.example.com/card`
 
+    GET /card HTTP/1.1
+    Host: mike.example.com
+    Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+
+
+    HTTP/1.1 200 OK
+    Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Allow: GET, HEAD, PUT, PATCH, DELETE
+    Date: Thu, 13 Feb 2025 04:03:11 GMT
+    ETag: "55"
+
     {
         "@context": {
             "foaf": "http://xmlns.com/foaf/0.1/",
             "ex": "http://example.com/ns#"
         },
-        "@id": "https://mike.example.com/card",
+        "@id": "",
         "@type": "foaf:PersonalProfileDocument",
         "foaf:primaryTopic": {
-            "@id": "https://mike.example.com/card#me",
+            "@id": "#me",
             "@type": "foaf:Person",
             "foaf:name": "Michael Thornburgh",
             "foaf:nick": [ "Mike", "zenomt" ],
             "ex:extras": {
-                "@id": "https://mike.example.com/card#extra",
+                "@id": "#extra",
                 "@type": "ex:Extras",
                 "ex:comment": "Some Extras"
             }
@@ -283,13 +295,16 @@ Example: Given an existing resource state for `https://mike.example.com/card`
     }
 
 
-The following patch says to add an additional `@type` of `schema:Person` to `#me`,
-remove the nickname `"zenomt"` from `#me` but leave `"Mike"`, remove the `ex:extras`
-link from `#me`, and remove all triples with subject `#extra`:
+The following patch says to add an additional `@type` of `schema:Person` to
+`card#me`, remove the nickname `"zenomt"` from `card#me` but leave `"Mike"`,
+remove the `ex:extras` link from `card#me`, and remove all triples with subject
+`card#extra`, as long as the resource hasn't changed since the above response:
 
     PATCH /card HTTP/1.1
     Host: mike.example.com
+    Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
     Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    If-Match: "55"
 
     {
         "@context": {
@@ -298,35 +313,46 @@ link from `#me`, and remove all triples with subject `#extra`:
             "schema": "http://schema.org/",
             "ex": "http://example.com/ns#"
         },
-        "@id": "#me",
+        "@id": "https://mike.example.com/card#me",
         "@type": "schema:Person",
         "foaf:nick": [ { "@id": "api:void" }, "Mike" ],
         "ex:extras": { "@id": "api:void" },
 
         "@included": [
             {
-                "@id": "#extra",
+                "@id": "https://mike.example.com/card#extra",
                 "api:void": null
             }
         ]
     }
 
 And might result, if there were no problems, in the resource now having state
+(with its representation also returned in the response for convenience):
+
+    HTTP/1.1 200 OK
+    Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Allow: GET, HEAD, PUT, PATCH, DELETE
+    Date: Thu, 13 Feb 2025 04:03:12 GMT
+    ETag: "56"
 
     {
         "@context": {
             "foaf": "http://xmlns.com/foaf/0.1/",
             "schema": "http://schema.org/"
         },
-        "@id": "https://mike.example.com/card",
+        "@id": "",
         "@type": "foaf:PersonalProfileDocument",
         "foaf:primaryTopic": {
-            "@id": "https://mike.example.com/card#me",
+            "@id": "#me",
             "@type": [ "foaf:Person", "schema:Person" ],
             "foaf:name": "Michael Thornburgh",
             "foaf:nick": "Mike"
         }
     }
+
+Note that a successful `PATCH` could have alternatively answered
+`204 No Content` and not sent a representation of the new state.
 
 If supported, a resource's state is created or completely replaced by a `PUT`
 request body's default graph.
@@ -335,10 +361,10 @@ If supported, an existing resource (and any sub-resources) is completely
 removed by a `DELETE` of its URI.
 
 It may be difficult or awkward to `PATCH` a complex resource, and in particular
-to insert, modify, or remove deeply-nested triples. It is therefore **RECOMMENDED**
-that complex resources intended to be modified be factored into hierarchical
-sub-resources with distinct URIs that can be `POST`ed, `PATCH`ed, `PUT`, or
-`DELETE`d independently.
+to insert, modify, or remove deeply-nested triples, or to modify blank nodes.
+It may be advantageous to factor complex resources into hierarchical sub-resources
+with distinct URIs that can be `POST`ed, `PATCH`ed, `PUT`, or `DELETE`d
+independently, and to avoid blank nodes.
 
 The application and the shapes & semantics of the resources determine whether
 the requested modifications are valid and allowed. If possible, successful
