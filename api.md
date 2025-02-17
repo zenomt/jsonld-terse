@@ -1,8 +1,8 @@
 Terse JSON-LD API
 =================
-This memo describes a JSON-based HTTP API framework for accessing and
-manipulating resources structured and represented as Linked Data using the
-Terse Profile for JSON-LD.
+This memo describes a hypermedia application protocol using HTTP to retrieve,
+create, and manipulate resources structured and represented as Linked Data
+using the Terse Profile for JSON-LD.
 
 Terminology
 -----------
@@ -13,6 +13,8 @@ described in [BCP 14][] \[[RFC2119][]\] \[[RFC8174][]\] when, and only when, the
 appear in all capitals, as shown here.
 
 This memo assumes familiarity with the concepts and terminology of
+[Representational State Transfer (REST)][REST];
+[Hypertext Transfer Protocol (HTTP, RFC 9110)][RFC9110];
 [Linked Data][] and the [Resource Description Framework (RDF)][RDF],
 including the terms [graph][],
 [default graph](https://www.w3.org/TR/rdf11-concepts/#section-dataset),
@@ -46,7 +48,7 @@ JSON-LD media-type:
 Requests and responses **SHOULD** use `Accept` with that media-type where
 appropriate to indicate support of this API.
 
-Normal RESTful use of methods:
+Normal RESTful use of standard HTTP methods:
 * [`OPTIONS`](https://www.rfc-editor.org/rfc/rfc9110.html#name-options)
 * [`HEAD`](https://www.rfc-editor.org/rfc/rfc9110.html#name-head)
 * [`GET`](https://www.rfc-editor.org/rfc/rfc9110.html#name-get)
@@ -65,12 +67,12 @@ Normal RESTful use of methods:
 Use of the `Allow` response header is **RECOMMENDED**. It lists understood/supported
 methods, not necessarily authorized methods.
 
-Normal RESTful use of HTTP errors: (`4XX`, `5XX`), **OPTIONAL** app-specific
-response bodies. If the error response body is intended to be machine-readable,
-it **SHOULD** use either an appropriate app-specific RDF vocabulary expressed
-as Terse JSON-LD with the Terse API's content-type, or the JSON form of
-[Problem Details for HTTP APIs][RFC9457] \[[RFC9457][]\] with content-type
-`application/problem+json`.
+Normal RESTful use of HTTP error status codes: (`4XX`, `5XX`), **OPTIONAL**
+app-specific response bodies. If the error response body is intended to be
+machine-readable, it **SHOULD** use either an appropriate app-specific RDF
+vocabulary expressed as Terse JSON-LD with the Terse API's content-type, or
+the JSON form of [Problem Details for HTTP APIs][RFC9457] \[[RFC9457][]\]
+with content-type `application/problem+json`.
 
 Message Body
 ------------
@@ -396,8 +398,10 @@ that don't belong with the other origins.
   [QUERY]: https://datatracker.ietf.org/doc/draft-ietf-httpbis-safe-method-w-body/
   [PATCH]: https://www.rfc-editor.org/rfc/rfc5789.html
   [BCP 14]: https://www.rfc-editor.org/info/bcp14
+  [REST]: https://roy.gbiv.com/pubs/dissertation/fielding_dissertation.pdf
   [RFC2119]: https://www.rfc-editor.org/rfc/rfc2119
   [RFC8174]: https://www.rfc-editor.org/rfc/rfc8174
+  [RFC9110]: https://www.rfc-editor.org/rfc/rfc9110
   [RFC9457]: https://www.rfc-editor.org/rfc/rfc9457
   [N-Triples]: https://www.w3.org/TR/n-triples/
   [TERSE-API]: http://zenomt.com/ns/terse-api
