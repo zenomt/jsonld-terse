@@ -12,8 +12,8 @@ NOT**", "**SHOULD**", "**SHOULD NOT**", "**RECOMMENDED**", "**NOT RECOMMENDED**"
 described in [BCP 14][] \[[RFC2119][]\] \[[RFC8174][]\] when, and only when, they
 appear in all capitals, as shown here.
 
-This memo assumes familiarity with the concepts and terminology of
-[Representational State Transfer (REST)][REST];
+This memo assumes familiarity with the concepts and terminology of the
+[Representational State Transfer (REST)][REST] architectural style;
 [Hypertext Transfer Protocol (HTTP, RFC 9110)][RFC9110];
 [Linked Data][] and the [Resource Description Framework (RDF)][RDF],
 including the terms [graph][],
@@ -45,8 +45,9 @@ JSON-LD media-type:
 
 > `application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"`
 
-Requests and responses **SHOULD** use `Accept` with that media-type where
-appropriate to indicate support of this API.
+Requests and responses **SHOULD** use
+[`Accept`](https://www.rfc-editor.org/rfc/rfc9110.html#name-accept)
+with that media-type where appropriate to indicate support of this API.
 
 Normal RESTful use of standard HTTP methods:
 * [`OPTIONS`](https://www.rfc-editor.org/rfc/rfc9110.html#name-options)
@@ -64,30 +65,34 @@ Normal RESTful use of standard HTTP methods:
 * [`PUT`](https://www.rfc-editor.org/rfc/rfc9110.html#name-put)
 * [`DELETE`](https://www.rfc-editor.org/rfc/rfc9110.html#name-delete)
 
-Use of the `Allow` response header is **RECOMMENDED**. It lists understood/supported
+Use of the [`Allow`](https://www.rfc-editor.org/rfc/rfc9110.html#name-allow)
+response header is **RECOMMENDED**. It lists understood/supported
 methods, not necessarily authorized methods.
 
-Normal RESTful use of HTTP error status codes: (`4XX`, `5XX`), **OPTIONAL**
-app-specific response bodies. If the error response body is intended to be
-machine-readable, it **SHOULD** use either an appropriate app-specific RDF
-vocabulary expressed as Terse JSON-LD with the Terse API's content-type, or
-the JSON form of [Problem Details for HTTP APIs][RFC9457] \[[RFC9457][]\]
+Responses **MUST** use the most specific, accurate, and appropriate
+[HTTP status code][HTTP-STATUS]. HTTP errors (status codes `4XX` & `5XX`)
+**MAY** have app-specific response bodies. If the error response body is
+intended to be machine-readable, it **SHOULD** use either an application-appropriate
+RDF vocabulary expressed as Terse JSON-LD with the Terse API's content-type,
+or the JSON form of [Problem Details for HTTP APIs][RFC9457] \[[RFC9457][]\]
 with content-type `application/problem+json`.
 
 Message Body
 ------------
-Request and response bodies **SHALL** be Terse JSON-LD documents encoded as
-a single top-level JSON Object.
+RDF request and response bodies **SHALL** be encoded as Terse JSON-LD documents
+having a single top-level JSON Object.
 
 The JSON Object encodes the default RDF Graph. It **MAY** also contain an
 `@metadata` member encoding a supplementary [metadata graph](#metadata-and-paging).
 
 A response graph **SHALL** be considered authoritative for subjects at the
 request URI (regardless of query parameters). A response can delegate authority
-for its URI namespace to other URIs by using the `Location` and `Content-Location`
-response headers, `rdfs:seeAlso` links, and [paging links](#metadata-and-paging),
-as might be encountered for example with `3XX` redirects, responses to a
-`POST` or `QUERY`, or paged responses.
+for its URI namespace to other URIs by using the
+[`Location`](https://www.rfc-editor.org/rfc/rfc9110.html#name-location)
+and [`Content-Location`](https://www.rfc-editor.org/rfc/rfc9110.html#name-content-location)
+response header fields, `rdfs:seeAlso` links, and
+[paging links](#metadata-and-paging), as might be encountered for example
+with `3XX` redirects, responses to a `POST` or `QUERY`, or paged responses.
 
 For example, if a request was redirected with a `303 See Other`, the final
 response graph is authoritative for subjects at the original target URI and
@@ -102,14 +107,14 @@ As an optimization to avoid additional HTTP transactions, a response graph
 other URIs. Clients **SHOULD** consider the response authoritative for subjects
 at sub-paths of the response's authoritative URIs; however, clients
 **MUST NOT** presume that the response graph includes _all_ of the triples
-from the other resources' graphs. Whether or not a client ought to believe
-extra included triples whose subjects are outside of the authoritative
-hierarchies, or from different origins, is application specific.
+from the other resources' graphs. How to handle extra included triples whose
+subjects are outside of the authoritative hierarchies, or from different
+origins, is application specific.
 
 Metadata and Paging
 -------------------
 Currently, the response supplementary metadata graph is only used to describe
-paging. Other uses TBD. There is currently no defined use for the request
+paging. Other uses TBD. There is currently no defined use for a request
 metadata graph.
 
 If present, the metadata graph **SHOULD** have at least a subject _R_ being
@@ -405,3 +410,4 @@ that don't belong with the other origins.
   [RFC9457]: https://www.rfc-editor.org/rfc/rfc9457
   [N-Triples]: https://www.w3.org/TR/n-triples/
   [TERSE-API]: http://zenomt.com/ns/terse-api
+  [HTTP-STATUS]: https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
