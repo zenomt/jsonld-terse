@@ -1,13 +1,13 @@
 {
     "@context": {
-        "@base": "http://zenomt.com/ns/terse-api",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-        "api": "#"
+        "dc": "http://purl.org/dc/elements/1.1/",
+        "api": "http://zenomt.com/ns/terse-api#"
     },
 
-    "@id": "",
+    "@id": "http://zenomt.com/ns/terse-api",
     "@type": "http://www.w3.org/2002/07/owl#Ontology",
-    "rdfs:comment": "Vocabulary for the Terse JSON-LD API.",
+    "dc:title": "Vocabulary for the Terse JSON-LD API.",
     "rdfs:seeAlso": { "@id": "https://zenomt.github.io/jsonld-terse/api.html" },
 
     "@included": [
@@ -87,6 +87,12 @@
             "@id": "api:void",
             "@type": "api:Void",
             "rdfs:comment": "(adj) having no value; (n) the anti-value None; (v) to empty or erase the value(s) of, to invalidate."
+        },
+        {
+            "@id": "api:Problem",
+            "@type": "rdfs:class",
+            "rdfs:subClassOf": { "@id": "api:Resource" },
+            "rdfs:comment": "A detailed description of an HTTP error response. My subclasses are more specific error types."
         }
     ]
 }

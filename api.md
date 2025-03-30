@@ -71,11 +71,9 @@ methods, not necessarily authorized methods.
 
 Responses **MUST** use the most specific, accurate, and appropriate
 [HTTP status code][HTTP-STATUS]. HTTP errors (status codes `4XX` & `5XX`)
-**MAY** have app-specific response bodies. If the error response body is
-intended to be machine-readable, it **SHOULD** use either an application-appropriate
-RDF vocabulary expressed as Terse JSON-LD with the Terse API's content-type,
-or the JSON form of [Problem Details for HTTP APIs][RFC9457] \[[RFC9457][]\]
-with content-type `application/problem+json`.
+**MAY** have application-specific response bodies to describe the problem
+with more specificity and in greater detail than the status code alone conveys;
+see [Problem Details](#problem-details) for more information.
 
 Message Body
 ------------
@@ -383,6 +381,56 @@ Conditional Requests
 Where appropriate, servers **SHOULD** support conditional requests by supplying
 `ETag`s in responses and supporting `If-Match` and `If-None-Match` request
 headers, especially for unsafe methods.
+
+Problem Details
+---------------
+HTTP errors (status codes `4XX` & `5XX`) **MAY** have application-specific
+response bodies to describe the problem with more specificity and in greater
+detail than the status code alone conveys.
+
+Error response bodies that are intended to be machine-readable **SHOULD** use
+RDF and Terse JSON-LD, rather than an ad-hoc format or [RFC 9457][RFC9457].
+
+A problem description is a subject having an `@type` of `api:Problem`, or a
+subclass of it. To aid identifying the problem description without inferencing,
+the problem description's `@type` **SHOULD** include both `api:Problem` as
+well as the more specific class(es) of the problem.
+
+To aid human diagnostics, implementations ought to include any `rdfs:comment`s
+for the specific class of problem (particularly if its URI might not be readily
+dereferenceable), as well as an `rdfs:comment` for this problem occurrence.
+
+If the problem description is not a blank node, then its URI uniquely identifies
+this specific occurrence of the problem, and if it is dereferenceable, these
+problem details can be retrieved again from there, potentially only for a time.
+
+Example describing a similar problem to the one shown in
+[Section 3 of RFC 9457](https://www.rfc-editor.org/rfc/rfc9457#section-3):
+
+    HTTP/1.1 403 Forbidden
+    Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Date: Sun, 30 Mar 2025 17:44:12 GMT
+
+    {
+        "@context": {
+            "@base": "https://store.example.com/",
+            "api": "http://zenomt.com/ns/terse-api#",
+            "ex": "http://example.com/ns#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+        },
+        "@id": "/accounts/12345/msgs/abc",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+            { "@id": "api:Problem" },
+            { "@id": "https://example.com/probs/out-of-credit", "rdfs:comment": "You do not have enough credit." }
+        ],
+        "rdfs:comment": "Your current balance is 30, but that costs 50.",
+        "ex:balance": 30,
+        "ex:account": [ { "@id": "/accounts/12345" }, { "@id": "/accounts/67890" } ]
+    }
+
+The response graph **MAY** include multiple problem descriptions if there were
+multiple problems with the request, so long as the HTTP status code is
+appropriate to all of the described problems.
 
 Security and Privacy Considerations
 -----------------------------------
