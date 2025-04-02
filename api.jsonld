@@ -1,5 +1,6 @@
 {
     "@context": {
+        "rdf": "https://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "dc": "http://purl.org/dc/elements/1.1/",
         "api": "http://zenomt.com/ns/terse-api#"
@@ -61,12 +62,13 @@
         {
             "@id": "api:Container",
             "@type": "rdfs:Class",
-            "rdfs:subClassOf": { "@id": "api:Resource" },
-            "rdfs:comment": "A Terse JSON-LD API Container."
+            "rdfs:subClassOf": [ { "@id": "api:Resource" }, { "@id": "rdfs:Container" }, { "@id": "rdf:Bag" } ],
+            "rdfs:comment": "A Terse JSON-LD API unordered container."
         },
         {
             "@id": "api:contains",
             "@type": "rdfs:Property",
+            "rdfs:subPropertyOf": { "@id": "rdfs:member" },
             "rdfs:domain": { "@id": "api:Container" },
             "rdfs:range": { "@id": "api:Resource" },
             "rdfs:comment": "A member of a Container."
