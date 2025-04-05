@@ -58,8 +58,8 @@ Normal RESTful use of standard HTTP methods:
   - `Accept-Query` response header **SHOULD** be provided when supported
 * [`POST`](https://www.rfc-editor.org/rfc/rfc9110.html#name-post)
   - Create a new item in an `api:Container`
-  - When creating a new item, the base URI will be the URI of the new resource. Don't set an `@base` in `POST` body
-  - Application-specific when `POST`ing to a non-container
+    - When creating a new item, the base URI will be the URI of the new resource. Don't set an `@base` in `POST` body
+  - Resource-specific when `POST`ing to a non-container
 * [`PATCH`][PATCH]
   - [Replace/insert/delete selected triples](#modifying-and-deleting-resources)
 * [`PUT`](https://www.rfc-editor.org/rfc/rfc9110.html#name-put)
@@ -78,10 +78,15 @@ see [Problem Details](#problem-details) for more information.
 Message Body
 ------------
 RDF request and response bodies **SHALL** be encoded as Terse JSON-LD documents
-having a single top-level JSON Object.
+having a single top-level JSON Object. The JSON Object encodes the default
+RDF Graph.
 
-The JSON Object encodes the default RDF Graph. It **MAY** also contain an
-`@metadata` member encoding a supplementary [metadata graph](#metadata-and-paging).
+The top-level Object **MAY** contain an `@metadata` member encoding a
+supplementary [metadata graph](#metadata-and-paging).
+
+The top-level Object **MAY** contain an `@remove` member encoding a graph
+consisting of triples
+[to be removed in a `PATCH` request](#modifying-and-deleting-resources).
 
 A response graph **SHALL** be considered authoritative for subjects at the
 request URI (regardless of query parameters). A response can delegate authority
@@ -249,16 +254,24 @@ by a `DELETE` of the container's URI.
 Modifying and Deleting Resources
 --------------------------------
 If supported, an existing resource can be partially modified using the `PATCH`
-method. The resource's graph is transformed as though the following steps
-were taken with the triples from the request graph:
+method. A `PATCH` request **MAY** contain an `@remove` member encoding a graph
+consisting of triples to remove from the resource. The request's default graph
+consists of triples to merge into the resource after the remove step.
 
-1. For any triple `{ ?S  api:void  ?O }`, remove  all triples in the resource's
-   graph having subject `?S`; then
+The URI `api:any` is interpreted as a wildcard in the `@remove` graph, and
+matches any URI, blank node, or literal in its corresponding role in a triple.
+For example, the triple `{ api:any ex:foo "bar" }` matches triples with any
+subject that have predicate `ex:foo` and object `"bar"`, the triple 
+`{ ex:Mike ex:foo api:any }` matches any triple having subject `ex:Mike` and
+predicate `ex:foo`, and the triple `{ ex:Mike api:any api:any }` matches any
+triple having subject `ex:Mike`.
 
-2. For any triple `{ ?S  ?P  api:void }`, remove all triples in the resource's
-   graph having subject `?S` _and_ predicate `?P`; then
+The resource's graph is transformed as though the following steps were taken:
 
-3. Merge all other triples of the request graph into the resource's graph.
+1. Remove all triples in the resource's graph that match any triple in the
+   `@remove` graph, including wildcard matches as described above; then
+
+2. Merge all triples of the request's default graph into the resource's graph.
 
 Note: the actual method by which a server implements the above transformation
 is not mandatated by this memo; for example, a remove-then-merge for a subject
@@ -300,10 +313,10 @@ Example: Given an existing resource state for `https://mike.example.com/card`
     }
 
 
-The following patch says to add an additional `@type` of `schema:Person` to
-`card#me`, remove the nickname `"zenomt"` from `card#me` but leave `"Mike"`,
-remove the `ex:extras` link from `card#me`, and remove all triples with subject
-`card#extra`, as long as the resource hasn't changed since the above response:
+The following patch says to remove the nickname `"zenomt"` from `card#me`
+(but leave `"Mike"`), remove any `ex:extras` links from `card#me`, remove all
+triples with subject `card#extra`, and add an additional `@type` of `schema:Person`
+to `card#me`, as long as the resource hasn't changed since the above response:
 
     PATCH /card HTTP/1.1
     Host: mike.example.com
@@ -318,17 +331,21 @@ remove the `ex:extras` link from `card#me`, and remove all triples with subject
             "schema": "http://schema.org/",
             "ex": "http://example.com/ns#"
         },
-        "@id": "https://mike.example.com/card#me",
-        "@type": "schema:Person",
-        "foaf:nick": [ { "@id": "api:void" }, "Mike" ],
-        "ex:extras": { "@id": "api:void" },
 
-        "@included": [
+        "@remove": [
+            {
+                "@id": "https://mike.example.com/card#me",
+                "foaf:nick": "zenomt",
+                "ex:extras": { "@id": "api:any" }
+            },
             {
                 "@id": "https://mike.example.com/card#extra",
-                "api:void": null
+                "api:any": { "@id": "api:any" }
             }
-        ]
+        ],
+
+        "@id": "https://mike.example.com/card#me",
+        "@type": "schema:Person"
     }
 
 And might result, if there were no problems, in the resource now having state

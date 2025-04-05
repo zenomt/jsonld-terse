@@ -81,14 +81,14 @@
             "rdfs:comment": "One of the expected types for members of this container."
         },
         {
-            "@id": "api:Void",
+            "@id": "api:Any",
             "@type": "rdfs:Class",
-            "rdfs:comment": "The singleton class of api:void."
+            "rdfs:comment": "The class of wildcards that match anything."
         },
         {
-            "@id": "api:void",
-            "@type": "api:Void",
-            "rdfs:comment": "(adj) having no value; (n) the anti-value None; (v) to empty or erase the value(s) of, to invalidate."
+            "@id": "api:any",
+            "@type": "api:Any",
+            "rdfs:comment": "I am a wildcard that matches any URI, blank node, or literal."
         },
         {
             "@id": "api:Problem",
