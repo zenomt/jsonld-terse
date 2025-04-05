@@ -255,8 +255,8 @@ Modifying and Deleting Resources
 --------------------------------
 If supported, an existing resource can be partially modified using the `PATCH`
 method. A `PATCH` request **MAY** contain an `@remove` member encoding a graph
-consisting of triples to remove from the resource. The request's default graph
-consists of triples to merge into the resource after the remove step.
+consisting of triples to remove from the target resource. The request's default
+graph consists of triples to merge into the target after the remove step.
 
 The URI `api:any` is interpreted as a wildcard in the `@remove` graph, and
 matches any URI, blank node, or literal in its corresponding role in a triple.
@@ -266,9 +266,9 @@ subject that have predicate `ex:foo` and object `"bar"`, the triple
 predicate `ex:foo`, and the triple `{ ex:Mike api:any api:any }` matches any
 triple having subject `ex:Mike`.
 
-The resource's graph is transformed as though the following steps were taken:
+The target's graph is transformed as though the following steps were taken:
 
-1. Remove all triples in the resource's graph that match any triple in the
+1. Remove all triples in the target's graph that match any triple in the
    `@remove` graph, including wildcard matches as described above; then
 
 2. Merge all triples of the request's default graph into the resource's graph.

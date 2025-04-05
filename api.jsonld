@@ -2,13 +2,13 @@
     "@context": {
         "rdf": "https://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-        "dc": "http://purl.org/dc/elements/1.1/",
+        "dcterms": "http://purl.org/dc/terms/",
         "api": "http://zenomt.com/ns/terse-api#"
     },
 
     "@id": "http://zenomt.com/ns/terse-api",
     "@type": "http://www.w3.org/2002/07/owl#Ontology",
-    "dc:title": "Vocabulary for the Terse JSON-LD API.",
+    "dcterms:title": "Vocabulary for the Terse JSON-LD API.",
     "rdfs:seeAlso": { "@id": "https://zenomt.github.io/jsonld-terse/api.html" },
 
     "@included": [
@@ -27,6 +27,7 @@
         {
             "@id": "api:firstPage",
             "@type": "rdfs:Property",
+            "rdfs:subPropertyOf": { "@id": "dcterms:hasPart" },
             "rdfs:domain": { "@id": "api:Resource" },
             "rdfs:range": { "@id": "api:Page" },
             "rdfs:comment": "The first page of a paged resource."
@@ -34,6 +35,7 @@
         {
             "@id": "api:lastPage",
             "@type": "rdfs:Property",
+            "rdfs:subPropertyOf": { "@id": "dcterms:hasPart" },
             "rdfs:domain": { "@id": "api:Resource" },
             "rdfs:range": { "@id": "api:Page" },
             "rdfs:comment": "The last page of a paged resource."
@@ -55,6 +57,7 @@
         {
             "@id": "api:pageOf",
             "@type": "rdfs:Property",
+            "rdfs:subPropertyOf": { "@id": "dcterms:isPartOf" },
             "rdfs:domain": { "@id": "api:Page" },
             "rdfs:range": { "@id": "api:Resource" },
             "rdfs:comment": "The canonical resource of which this is a page."
