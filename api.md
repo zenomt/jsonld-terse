@@ -484,7 +484,7 @@ Example describing a similar problem to the one shown in
             "ex": "http://example.com/ns#",
             "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
         },
-        "@id": "/accounts/12345/msgs/abc",
+        "@id": "/accounts/12345/msgs/abc#the-problem",
         "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
             { "@id": "api:Problem" },
             { "@id": "https://example.com/probs/out-of-credit", "rdfs:comment": "You do not have enough credit." }
