@@ -75,6 +75,12 @@ Responses **MUST** use the most specific, accurate, and appropriate
 with more specificity and in greater detail than the status code alone conveys;
 see [Problem Details](#problem-details) for more information.
 
+Conditional Requests
+--------------------
+Where appropriate, servers **SHOULD** support conditional requests by supplying
+`ETag`s in responses and supporting `If-Match` and `If-None-Match` request
+headers, especially for unsafe methods.
+
 Message Body
 ------------
 RDF request and response bodies **SHALL** be encoded as Terse JSON-LD documents
@@ -114,11 +120,59 @@ from the other resources' graphs. How to handle extra included triples whose
 subjects are outside of the authoritative hierarchies, or from different
 origins, is application specific.
 
+Containers
+----------
+An `api:Container` is an unordered collection of `api:Resource`s. A container's
+URI path **MUST** end in a slash. A container's members **MUST** have URIs
+at a sub-path of the container's URI; clients **SHOULD** ignore any `api:contains`
+triple whose object's URI is not at a sub-path of the container's URI.
+
+A container **MUST** have an `@type` of `api:Container`.
+
+A container's members are enumerated by `api:contains`.
+
+A container **MAY** have `api:containerOf` triples to advertise potential
+types for the container's members. These triples are optional, but may be
+useful for understanding the types of members that can be added with `POST`
+as described below.
+
+A container or the container resource's graph **MAY** have other triples
+including addtional `@type`s, according to the application.
+
+If supported, a new member is added to a container by a `POST` to the container's
+URI. The base URI for resolving relative URI references in the request body
+will be the URI of the new member. The server might (but is not obliged to)
+honor a [`Slug`](https://www.rfc-editor.org/rfc/rfc5023.html#section-9.7)
+request header, if present, for influencing a portion of the URI for the new
+member. If the `Slug` header is present and the server incorporates it, but
+the resulting URI is already in use, the server **SHOULD** refuse the request
+with status `409 Conflict`. When answering `409 Conflict`, the server **SHOULD**
+include a `Location` response header giving the URI of the conflicting member.
+
+If supported, a member is deleted and removed from the container by a `DELETE`
+of the member's URI.
+
+The server **MAY** permit creation of a new empty container resource using
+`PUT` to a sub-path of an appropriate parent resource.
+
+An existing container's URI **SHOULD NOT** support `PUT`. The server **SHOULD**
+respond to a `PUT` to an existing container with `409 Conflict`, unless the
+request fails a precondition (such as `If-None-Match: *`) in which case
+`412 Precondition Failed` takes precedence.
+
+`PATCH` of a container **MAY** be supported, but only for modifying
+application-specific non-container attributes of the container resource; that
+is, containment `api:contains` relations **MUST NOT** be modified with `PATCH`.
+
+If supported, the container and (recursively) its contained members are deleted
+by a `DELETE` of the container's URI.
+
 Metadata and Paging
 -------------------
 There is currently no defined use for a request metadata graph.
 
-If present, the metadata graph **SHOULD** have _at least_ a subject _R_ being:
+If present, the supplementary metadata graph **SHOULD** have _at least_ a
+subject _R_ being:
 
 1. The URI indicated by the `Content-Location` response header field; or if not present
 2. The URI indicated by the `Location` response header field; or if not present
@@ -132,7 +186,7 @@ If the response represents a page of a resource:
   * _R_ **SHALL** have an `api:pageOf` to the resource of which it is a page
   * If _R_ is not the last page of the resource, it **SHALL** have an `api:nextPage`
     link to the next page. _R_ **MAY** have an `api:prevPage` link to the
-    previous page, if appropriate, practical, and known.
+    previous page if appropriate, practical, and known.
 
 The graph of a paged resource is the merge of the default graphs of its pages.
 The merged graph **SHALL** be considered authoritative for triples with
@@ -251,53 +305,6 @@ answering the first page of the queried view of the container:
             { "@id": "3", "@type": "ex:Foo", "ex:name": "example Foo 3" }
         ]
     }
-
-Containers
-----------
-An `api:Container` is an unordered collection of `api:Resource`s. A container's
-URI path **MUST** end in a slash. A container's members **MUST** have URIs
-at a sub-path of the container's URI; clients **SHOULD** ignore any `api:contains`
-triple whose object's URI is not at a sub-path of the container's URI.
-
-A container **MUST** have an `@type` of `api:Container`.
-
-A container's members are enumerated by `api:contains`.
-
-A container **MAY** have `api:containerOf` triples to advertise potential
-types for the container's members. These triples are optional, but may be
-useful for understanding the types of members that can be added with `POST`
-as described below.
-
-A container or the container resource's graph **MAY** have other triples
-including addtional `@type`s, according to the application.
-
-If supported, a new member is added to a container by a `POST` to the container's
-URI. The base URI for resolving relative URI references in the request body
-will be the URI of the new member. The server might (but is not obliged to)
-honor a [`Slug`](https://www.rfc-editor.org/rfc/rfc5023.html#section-9.7)
-request header, if present, for influencing a portion of the URI for the new
-member. If the `Slug` header is present and the server incorporates it, but
-the resulting URI is already in use, the server **SHOULD** refuse the request
-with status `409 Conflict`. When answering `409 Conflict`, the server **SHOULD**
-include a `Location` response header giving the URI of the conflicting member.
-
-If supported, a member is deleted and removed from the container by a `DELETE`
-of the member's URI.
-
-The server **MAY** permit creation of a new empty container resource using
-`PUT` to a sub-path of an appropriate parent resource.
-
-An existing container's URI **SHOULD NOT** support `PUT`. The server **SHOULD**
-respond to a `PUT` to an existing container with `409 Conflict`, unless the
-request fails a precondition (such as `If-None-Match: *`) in which case
-`412 Precondition Failed` takes precedence.
-
-`PATCH` of a container **MAY** be supported, but only for modifying
-application-specific non-container attributes of the container resource; that
-is, containment `api:contains` relations **MUST NOT** be modified with `PATCH`.
-
-If supported, the container and (recursively) its contained members are deleted
-by a `DELETE` of the container's URI.
 
 Modifying and Deleting Resources
 --------------------------------
@@ -440,12 +447,6 @@ The application and the shapes & semantics of the resources determine whether
 the requested modifications are valid and allowed. If possible and appropriate,
 successful responses to modifications **SHOULD** include an `ETag` for the
 new state of the resource.
-
-Conditional Requests
---------------------
-Where appropriate, servers **SHOULD** support conditional requests by supplying
-`ETag`s in responses and supporting `If-Match` and `If-None-Match` request
-headers, especially for unsafe methods.
 
 Problem Details
 ---------------
