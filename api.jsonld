@@ -84,7 +84,7 @@
         },
         {
             "@id": "api:member",
-            "@type": [ "rdfs:Property", "rdfs:ContainerMembershipProperty" ],
+            "@type": "rdfs:Property",
             "rdfs:subPropertyOf": { "@id": "rdfs:member" },
             "rdfs:domain": { "@id": "api:Container" },
             "rdfs:range": { "@id": "api:Resource" },
