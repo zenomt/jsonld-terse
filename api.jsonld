@@ -60,7 +60,21 @@
             "rdfs:subPropertyOf": { "@id": "dcterms:isPartOf" },
             "rdfs:domain": { "@id": "api:Page" },
             "rdfs:range": { "@id": "api:Resource" },
-            "rdfs:comment": "The canonical resource of which this is a page."
+            "rdfs:comment": "The resource of which this is a page."
+        },
+        {
+            "@id": "api:View",
+            "@type": "rdfs:Class",
+            "rdfs:subClassOf": { "@id": "api:Resource" },
+            "rdfs:comment": "A resource (like the result of a QUERY) that is a view or projection of another resource."
+        },
+        {
+            "@id": "api:viewOf",
+            "@type": "rdfs:Property",
+            "rdfs:subPropertyOf": { "@id": "dcterms:source" },
+            "rdfs:domain": { "@id": "api:View" },
+            "rdfs:range": { "@id": "api:Resource" },
+            "rdfs:comment": "The resource of which this is a view or projection."
         },
         {
             "@id": "api:Container",

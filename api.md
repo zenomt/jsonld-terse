@@ -116,38 +116,33 @@ origins, is application specific.
 
 Metadata and Paging
 -------------------
-Currently, the response supplementary metadata graph is only used to describe
-paging. Other uses TBD. There is currently no defined use for a request
-metadata graph.
+There is currently no defined use for a request metadata graph.
 
-If present, the metadata graph **SHOULD** have at least a subject _R_ being
-the URI of the response.
+If present, the metadata graph **SHOULD** have _at least_ a subject _R_ being:
 
-If the response represents a page of a multi-page resource:
+1. The URI indicated by the `Content-Location` response header field; or if not present
+2. The URI indicated by the `Location` response header field; or if not present
+3. The request's URI.
+
+If the response represents a page of a resource:
 
   * The response **SHALL** include a supplementary metadata graph
-  * The metadata graph **SHALL** have a subject _R_ = the URI of the response
-  * _R_ **MUST** have an `@type` of `api:Page`
-  * _R_ **MUST** have an `api:pageOf` to the canonical URI for the resource of which it is a page
-  * _R_ **MUST** have at least one of `api:prevPage` or `api:nextPage`
+  * The metadata graph **SHALL** have a subject _R_ = the URI as defined above
+  * _R_ **SHALL** have an `@type` of `api:Page`
+  * _R_ **SHALL** have an `api:pageOf` to the resource of which it is a page
+  * If _R_ is not the last page of the resource, it **SHALL** have an `api:nextPage`
+    link to the next page. _R_ **MAY** have an `api:prevPage` link to the
+    previous page, if appropriate, practical, and known.
 
 The graph of a paged resource is the merge of the default graphs of its pages.
 The merged graph **SHALL** be considered authoritative for triples with
 subjects at or at sub-paths of the authoritative URIs of the resource and
 each of its pages.
 
-Some applications might intend for just a subset of pages to be processed at
-once, rather than merging them all together to a single graph before processing.
-In these cases, it may be desirable for some triples to appear in every page.
-When the same triples appear in multiple pages, care **SHOULD** be taken (for
-example, by avoiding the use of blank nodes in repeated triples) so that pages
-with repeated triples _can_ be merged without causing inadvertent duplicate
-nodes in the merged graph.
-
-The canonical URI for the paged resource **MAY** include `api:firstPage` and
-`api:lastPage` links in the metadata graph, if appropriate and known. The
-first and last pages **SHALL** be for the same pagination and result as the
-current page, if that is defined.
+The paged resource **MAY** include `api:firstPage` and `api:lastPage` links
+in the metadata graph, if appropriate and known. The first and last pages
+**SHALL** be for the same pagination and result as the current page, if that
+is defined.
 
 When requesting a paged resource with `GET` or `QUERY`, if the "first"-ness
 involves a request-specific state or cursor, then the first page **SHOULD**
@@ -159,8 +154,20 @@ answering such a request, in addition to providing the distinct URI in an
 * include a `Content-Location` response header linking to the first page's
   distinct URI; or
 * redirect with `303 See Other` to the first page of the paged response (though
-  this incurs an extra round-trip and doesn't allow for an ETag for the
+  this incurs an extra round-trip and doesn't allow for an `ETag` for the
   canonical resource).
+
+Some applications might intend for just a subset of pages to be processed at
+once, rather than merging them all together to a single graph before processing.
+In these cases, it may be desirable for some triples to appear in every page.
+When the same triples appear in multiple pages, care **SHOULD** be taken (for
+example, by avoiding the use of blank nodes in repeated triples) so that pages
+with repeated triples _can_ be merged without causing inadvertent duplicate
+nodes in the merged graph.
+
+A response that is a filtered or projected view of a resource (such as the
+result of a `QUERY`) **SHOULD** have an `api:viewOf` in the metadata graph
+to the URI of the resource of which it is a view.
 
 The following example shows a `GET` for page 2 of a hypothetical 4-page
 container `https://example.com/api/items/`. The container's canonical URI is
@@ -195,13 +202,54 @@ other pages because it contains no blank nodes.
         },
         "@id": ".",
         "@type": "api:Container",
-        "api:containerOf": { "@id": "ex:Item },
+        "api:containerOf": { "@id": "ex:Item" },
         "api:contains": [
             { "@id": "4", "@type": "ex:Item", "ex:name": "example item 4" },
             { "@id": "5", "@type": "ex:Item", "ex:name": "example item 5" },
             { "@id": "6", "@type": "ex:Item", "ex:name": "example item 6" }
         ],
         "ex:usefulInfo": { "@id": ".#info", "ex:comment": "I can safely appear in each page." }
+    }
+
+The following example shows a `QUERY` on a hypothetical queryable container
+`https://example.com/api/stuff/` to find the items with type `ex:Foo`, and
+answering the first page of the queried view of the container:
+
+    QUERY /api/stuff/ HTTP/1.1
+    Host: example.com
+    Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Content-Type: application/x-www-form-urlencoded
+
+    type=http%3A%2F%2Fexample.com%2Fns%23Foo
+
+
+    HTTP/1.1 200 OK
+    Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Content-Location: queries/42/1
+    Date: Sat,  5 Apr 2025 23:30:17 GMT
+
+    {
+        "@context": {
+            "api": "http://zenomt.com/ns/terse-api#",
+            "ex": "http://example.com/ns#"
+        },
+        "@metadata": {
+            "@id": "queries/42/1",
+            "@type": "api:Page",
+            "api:pageOf": {
+                "@type": "api:View",
+                "api:viewOf": { "@id": "." }
+            },
+            "api:nextPage": { "@id": "queries/42/2" }
+        },
+        "@id": ".",
+        "@type": "api:Container",
+        "api:containerOf": [ { "@id": "ex:Foo" }, { "@id": "ex:Bar" } ],
+        "api:contains": [
+            { "@id": "1", "@type": "ex:Foo", "ex:name": "example Foo 1" },
+            { "@id": "2", "@type": "ex:Foo", "ex:name": "example Foo 2" },
+            { "@id": "3", "@type": "ex:Foo", "ex:name": "example Foo 3" }
+        ]
     }
 
 Containers
@@ -389,9 +437,9 @@ with distinct URIs that can be `POST`ed, `PATCH`ed, `PUT`, or `DELETE`d
 independently, and to avoid blank nodes.
 
 The application and the shapes & semantics of the resources determine whether
-the requested modifications are valid and allowed. If possible, successful
-responses to modifications **SHOULD** include an `ETag` for the new state of
-the resource.
+the requested modifications are valid and allowed. If possible and appropriate,
+successful responses to modifications **SHOULD** include an `ETag` for the
+new state of the resource.
 
 Conditional Requests
 --------------------
