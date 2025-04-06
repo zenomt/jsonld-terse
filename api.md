@@ -124,12 +124,12 @@ Containers
 ----------
 An `api:Container` is an unordered collection of `api:Resource`s. A container's
 URI path **MUST** end in a slash. A container's members **MUST** have URIs
-at a sub-path of the container's URI; clients **SHOULD** ignore any `api:contains`
+at a sub-path of the container's URI; clients **SHOULD** ignore any `api:member`
 triple whose object's URI is not at a sub-path of the container's URI.
 
 A container **MUST** have an `@type` of `api:Container`.
 
-A container's members are enumerated by `api:contains`.
+A container's members are enumerated by `api:member`.
 
 A container **MAY** have `api:containerOf` triples to advertise potential
 types for the container's members. These triples are optional, but may be
@@ -162,7 +162,7 @@ request fails a precondition (such as `If-None-Match: *`) in which case
 
 `PATCH` of a container **MAY** be supported, but only for modifying
 application-specific non-container attributes of the container resource; that
-is, containment `api:contains` relations **MUST NOT** be modified with `PATCH`.
+is, containment `api:member` relations **MUST NOT** be modified with `PATCH`.
 
 If supported, the container and (recursively) its contained members are deleted
 by a `DELETE` of the container's URI.
@@ -257,7 +257,7 @@ other pages because it contains no blank nodes.
         "@id": ".",
         "@type": "api:Container",
         "api:containerOf": { "@id": "ex:Item" },
-        "api:contains": [
+        "api:member": [
             { "@id": "4", "@type": "ex:Item", "ex:name": "example item 4" },
             { "@id": "5", "@type": "ex:Item", "ex:name": "example item 5" },
             { "@id": "6", "@type": "ex:Item", "ex:name": "example item 6" }
@@ -299,7 +299,7 @@ answering the first page of the queried view of the container:
         "@id": ".",
         "@type": "api:Container",
         "api:containerOf": [ { "@id": "ex:Foo" }, { "@id": "ex:Bar" } ],
-        "api:contains": [
+        "api:member": [
             { "@id": "1", "@type": "ex:Foo", "ex:name": "example Foo 1" },
             { "@id": "2", "@type": "ex:Foo", "ex:name": "example Foo 2" },
             { "@id": "3", "@type": "ex:Foo", "ex:name": "example Foo 3" }

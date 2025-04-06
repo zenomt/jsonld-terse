@@ -83,7 +83,7 @@
             "rdfs:comment": "A Terse JSON-LD API unordered container."
         },
         {
-            "@id": "api:contains",
+            "@id": "api:member",
             "@type": [ "rdfs:Property", "rdfs:ContainerMembershipProperty" ],
             "rdfs:subPropertyOf": { "@id": "rdfs:member" },
             "rdfs:domain": { "@id": "api:Container" },
