@@ -60,7 +60,7 @@
             "rdfs:subPropertyOf": { "@id": "dcterms:isPartOf" },
             "rdfs:domain": { "@id": "api:Page" },
             "rdfs:range": { "@id": "api:Resource" },
-            "rdfs:comment": "The resource of which this is a page."
+            "rdfs:comment": "The resource of which the subject is a page."
         },
         {
             "@id": "api:View",
@@ -74,7 +74,7 @@
             "rdfs:subPropertyOf": { "@id": "dcterms:source" },
             "rdfs:domain": { "@id": "api:View" },
             "rdfs:range": { "@id": "api:Resource" },
-            "rdfs:comment": "The resource of which this is a view or projection."
+            "rdfs:comment": "The resource of which the subject is a view or projection."
         },
         {
             "@id": "api:Container",
@@ -95,7 +95,7 @@
             "@type": "rdfs:Property",
             "rdfs:domain": { "@id": "api:Container" },
             "rdfs:range": { "@id": "rdfs:Class" },
-            "rdfs:comment": "One of the expected types for members of this container."
+            "rdfs:comment": "One of the expected types for members of the subject container."
         },
         {
             "@id": "api:Any",
