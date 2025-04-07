@@ -75,8 +75,7 @@ Responses **MUST** use the most specific, accurate, and appropriate
 with more specificity and in greater detail than the status code alone conveys;
 see [Problem Details](#problem-details) for more information.
 
-Conditional Requests
---------------------
+### Conditional Requests
 Where appropriate, servers **SHOULD** support conditional requests by supplying
 `ETag`s in responses and supporting `If-Match` and `If-None-Match` request
 headers, especially for unsafe methods.
