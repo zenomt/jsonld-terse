@@ -61,7 +61,7 @@ async function doLoad() {
 
 		let effectiveRootContext = com_zenomt_JSONLD_Terse.effectiveRootContext(doc, { documentUri:response.url || docUri });
 		console.log("effectiveRootContext", effectiveRootContext);
-		const mdGraph = new com_zenomt_JSONLD_Terse(doc?.["@metadata"], { fallbackContext:effectiveRootContext } );
+		const mdGraph = new com_zenomt_JSONLD_Terse(doc?.["@@metadata"], { fallbackContext:effectiveRootContext } );
 		console.log("metadata graph", mdGraph);
 		metadata.innerText = mdGraph.asJSON(null, { indent: 4, noArray:noArray.checked, base: relative.checked && canRelative ? rootUri : null, rawLiteral: rawLiteral.checked });
 		tableFromGraph(mdTriples, mdGraph);

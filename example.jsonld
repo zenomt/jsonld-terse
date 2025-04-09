@@ -4,7 +4,7 @@
         "schema": "http://schema.org/",
         "owl":    "http://www.w3.org/2002/07/owl#"
     },
-    "@metadata": {
+    "@@metadata": {
         "@context": {
             "api": "http://zenomt.com/ns/terse-api#"
         },

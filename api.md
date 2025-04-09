@@ -86,10 +86,10 @@ RDF request and response bodies **SHALL** be encoded as Terse JSON-LD documents
 having a single top-level JSON Object. The JSON Object encodes the default
 RDF Graph.
 
-The top-level Object **MAY** contain an `@metadata` member encoding a
+The top-level Object **MAY** contain an `@@metadata` member encoding a
 supplementary [metadata graph](#metadata-and-paging).
 
-The top-level Object **MAY** contain an `@remove` member encoding a graph
+The top-level Object **MAY** contain an `@@remove` member encoding a graph
 consisting of triples
 [to be removed in a `PATCH` request](#modifying-and-deleting-resources).
 
@@ -242,7 +242,7 @@ other pages because it contains no blank nodes.
             "api": "http://zenomt.com/ns/terse-api#",
             "ex": "http://example.com/ns#"
         },
-        "@metadata": {
+        "@@metadata": {
             "@id": "",
             "@type": "api:Page",
             "api:pageOf": {
@@ -286,7 +286,7 @@ answering the first page of the queried view of the container:
             "api": "http://zenomt.com/ns/terse-api#",
             "ex": "http://example.com/ns#"
         },
-        "@metadata": {
+        "@@metadata": {
             "@id": "queries/42/1",
             "@type": "api:Page",
             "api:pageOf": {
@@ -308,11 +308,11 @@ answering the first page of the queried view of the container:
 Modifying and Deleting Resources
 --------------------------------
 If supported, an existing resource can be partially modified using the `PATCH`
-method. A `PATCH` request **MAY** contain an `@remove` member encoding a graph
+method. A `PATCH` request **MAY** contain an `@@remove` member encoding a graph
 consisting of triples to remove from the target resource. The request's default
 graph consists of triples to merge into the target after the remove step.
 
-The URI `api:any` is interpreted as a wildcard in the `@remove` graph, and
+The URI `api:any` is interpreted as a wildcard in the `@@remove` graph, and
 matches any URI, blank node, or literal in its corresponding role in a triple.
 For example, the triple `{ api:any ex:foo "bar" }` matches triples with any
 subject that have predicate `ex:foo` and object `"bar"`, the triple 
@@ -323,7 +323,7 @@ triple having subject `ex:Mike`.
 The target's graph is transformed as though the following steps were taken:
 
 1. Remove all triples in the target's graph that match any triple in the
-   `@remove` graph, including wildcard matches as described above; then
+   `@@remove` graph, including wildcard matches as described above; then
 
 2. Merge all triples of the request's default graph into the resource's graph.
 
@@ -386,7 +386,7 @@ to `card#me`, as long as the resource hasn't changed since the above response:
             "ex": "http://example.com/ns#"
         },
 
-        "@remove": [
+        "@@remove": [
             {
                 "@id": "https://mike.example.com/card#me",
                 "foaf:nick": "zenomt",
