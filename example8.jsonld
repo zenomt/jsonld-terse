@@ -33,7 +33,7 @@
                     { "@id": "api:Container" },
                     {
                         "@type": "owl:Restriction",
-                        "owl:onProperty": { "@id": "api:contains" },
+                        "owl:onProperty": { "@id": "api:member" },
                         "owl:allValuesFrom": { "@id": "ex:Item" }
                     }
                 ] }
