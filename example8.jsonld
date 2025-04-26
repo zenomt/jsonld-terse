@@ -4,7 +4,7 @@
         "ex": "#",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
         "api": "http://zenomt.com/ns/terse-api#",
-        "owl": "https://www.w3.org/2002/07/owl#"
+        "owl": "http://www.w3.org/2002/07/owl#"
     },
 
     "@id": "",
