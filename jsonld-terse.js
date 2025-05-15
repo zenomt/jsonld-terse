@@ -146,7 +146,7 @@ class com_zenomt_JSONLD_Terse {
 			if("@type" == key)
 			{
 				key = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-				value = (Array.isArray(value) ? value : [value]).map(v => ({ "@id": v }));
+				value = (Array.isArray(value) ? value : [value]).map(v => ({ "@id": this.constructor._expandUri(v, !!context.vocab, context) }));
 			}
 
 			if("@included" == key)
@@ -192,7 +192,7 @@ class com_zenomt_JSONLD_Terse {
 			const prefix = uri.substring(0, colonPosition);
 			return (typeof(prefixes[prefix]) == "string") ? prefixes[prefix] + uri.substring(colonPosition + 1) : uri;
 		}
-		return isKey ? (prefixes[uri] ?? (vocab ? vocab + uri : null)) : (new URL(uri, baseUri)).href;
+		return prefixes[uri] ?? (isKey ? (vocab ? vocab + uri : null) : (new URL(uri, baseUri)).href);
 	}
 
 	static _adaptLiteral(node, { prefixes = {}, baseUri, literals, rawLiteral } = {}) {

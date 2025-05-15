@@ -100,8 +100,9 @@ doing so should be unnecessary in idiomatic documents and could obfuscate the
 document’s meaning to a casual human reader.
 
 A node **MAY** have an `@type` member, whose value **SHALL** be either a
-`String` or an `Array` of `String`s each representing a compact IRI or IRI
-reference.
+`String` or an `Array` of `String`s. Each string indicates an IRI and is
+either an exact match of an `@context` member, a compact IRI, an absolute
+IRI, a vocabulary-mapped IRI if an `@vocab` is set, or an IRI reference.
 
 A node `Object` **MAY** have an `@included` member, whose value **SHALL** be
 either a node `Object`, or an `Array` of node `Object`s.
