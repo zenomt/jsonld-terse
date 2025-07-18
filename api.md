@@ -578,7 +578,7 @@ Notice also that the response to the `POST` request
 [indicates via the `Location` header](https://www.rfc-editor.org/rfc/rfc9111.html#section-4.4-3)
 that any cached representation of the order resource should be invalidated.
 
-Note that an action target URL isn’t required to be a at sub-path of its bound
+Note that an action target URL isn’t required to be at a sub-path of its bound
 subject; however, an action target URL **SHOULD** be in the same origin as
 its bound subject for the reasons discussed in
 [Security and Privacy Considerations](#security-and-privacy-considerations)
