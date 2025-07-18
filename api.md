@@ -460,7 +460,7 @@ when `POST`ed to, invokes the functional process indicated by the semantics
 of the predicate on, or in the context of, the subject. Actions are intended
 to fill the gap where the standard, generic HTTP methods are inadequate to
 the desired processing semantics, or to convey the currently available state
-transitions of a resource via hypermedia.
+transitions of a resource via hypermedia controls.
 
 Consider an example “Store” ontology that describes cancelable orders:
 
@@ -578,7 +578,7 @@ Notice also that the response to the `POST` request
 [indicates via the `Location` header](https://www.rfc-editor.org/rfc/rfc9111.html#section-4.4-3)
 that any cached representation of the order resource should be invalidated.
 
-Note that an action target URL isn’t required to be at sub-path of its bound
+Note that an action target URL isn’t required to be a at sub-path of its bound
 subject; however, an action target URL **SHOULD** be in the same origin as
 its bound subject for the reasons discussed in
 [Security and Privacy Considerations](#security-and-privacy-considerations)
