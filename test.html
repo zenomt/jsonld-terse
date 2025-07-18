@@ -80,6 +80,18 @@ function urlChanged() {
 
 </script>
 
+<style>
+table {
+	border-collapse: collapse;
+	width: 100%;
+	border-spacing: 0;
+}
+th, td { text-align: left; padding: 1px 1em 0 0; }
+tr > td:first-of-type { white-space: nowrap; }
+tr > td:nth-of-type(2) { white-space: nowrap; }
+tbody > tr:hover { background-color: #80808020; }
+</style>
+
 <title>Test JSON-LD Terse Profile</title>
 <body onload="urlChanged()">
 <h1>Test JSON-LD <a href="http://zenomt.com/ns/jsonld-terse">Terse Profile</a></h1>
@@ -116,7 +128,7 @@ function urlChanged() {
 <h2>asTree</h2>
 <pre id="expanded"></pre>
 <h2>asTriples</h2>
-<table style="border-spacing: 1em 0px; text-align: left">
+<table>
 	<thead> <tr> <th>Subject</th> <th>Predicate</th> <th>Object</th> </tr> </thead>
 	<tbody id="triples" style="font-family: monospace"></tbody>
 </table>
