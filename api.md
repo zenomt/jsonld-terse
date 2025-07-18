@@ -412,6 +412,7 @@ And might result, if there were no problems, in the resource now having state
 
     HTTP/1.1 200 OK
     Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Content-Location: /card
     Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
     Allow: GET, HEAD, PUT, PATCH, DELETE
     Date: Thu, 13 Feb 2025 04:03:12 GMT
@@ -540,7 +541,6 @@ above, perform a conditional HTTP `POST` to the `store:cancel` target URL:
     If: </orders/1234> (["Rev-3"])
 
     {
-        "@id": "",
         "http://www.w3.org/2000/01/rdf-schema#comment": "I don't want this anymore"
     }
 
