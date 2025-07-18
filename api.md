@@ -57,12 +57,14 @@ Normal RESTful use of standard HTTP methods:
   - Query body media-type is application and resource specific
   - `Accept-Query` response header **SHOULD** be provided when supported
 * [`POST`](https://www.rfc-editor.org/rfc/rfc9110.html#name-post)
-  - Create a new item in an `api:Container`
+  - Create a new item in a [container](#containers)
     - When creating a new item, the base URI will be the URI of the new resource. Don't set an `@base` in `POST` body
-  - Resource-specific when `POST`ing to a non-container
+  - Invoke an [action](#actions) on (or in the context of) the subject resource to which the `POST` target is bound
+  - Otherwise resource-specific
 * [`PATCH`][PATCH]
   - [Replace/insert/delete selected triples](#modifying-and-deleting-resources)
 * [`PUT`](https://www.rfc-editor.org/rfc/rfc9110.html#name-put)
+  - Create or completely replace a resource’s state
 * [`DELETE`](https://www.rfc-editor.org/rfc/rfc9110.html#name-delete)
 
 Use of the [`Allow`](https://www.rfc-editor.org/rfc/rfc9110.html#name-allow)
@@ -77,8 +79,11 @@ see [Problem Details](#problem-details) for more information.
 
 ### Conditional Requests
 Where appropriate, servers **SHOULD** support conditional requests by supplying
-`ETag`s in responses and supporting `If-Match` and `If-None-Match` request
-headers, especially for unsafe methods.
+[`ETag`](https://www.rfc-editor.org/rfc/rfc9110.html#name-etag) response headers
+and supporting
+[`If-Match`](https://www.rfc-editor.org/rfc/rfc9110.html#name-if-match),
+[`If-None-Match`](https://www.rfc-editor.org/rfc/rfc9110.html#name-if-none-match),
+and [`If`][If] request headers, especially for unsafe methods.
 
 Message Body
 ------------
@@ -382,7 +387,7 @@ to `card#me`, as long as the resource hasn't changed since the above response:
         "@context": {
             "api": "http://zenomt.com/ns/terse-api#",
             "foaf": "http://xmlns.com/foaf/0.1/",
-            "schema": "http://schema.org/",
+            "schema": "https://schema.org/",
             "ex": "http://example.com/ns#"
         },
 
@@ -415,7 +420,7 @@ And might result, if there were no problems, in the resource now having state
     {
         "@context": {
             "foaf": "http://xmlns.com/foaf/0.1/",
-            "schema": "http://schema.org/"
+            "schema": "https://schema.org/"
         },
         "@id": "",
         "@type": "foaf:PersonalProfileDocument",
@@ -446,6 +451,141 @@ The application and the shapes & semantics of the resources determine whether
 the requested modifications are valid and allowed. If possible and appropriate,
 successful responses to modifications **SHOULD** include an `ETag` for the
 new state of the resource.
+
+Actions
+-------
+An _action-binding triple_ is a triple whose predicate is a sub-property of
+`api:action`. An _Action_ is the object URL of an action-binding triple that,
+when `POST`ed to, invokes the functional process indicated by the semantics
+of the predicate on, or in the context of, the subject. Actions are intended
+to fill the gap where the standard, generic HTTP methods are inadequate to
+the desired processing semantics, or to convey the currently available state
+transitions of a resource via hypermedia.
+
+Consider an example “Store” ontology that describes cancelable orders:
+
+    {
+        "@context": {
+            "store": "http://example.com/ns/store#",
+            "api": "http://zenomt.com/ns/terse-api#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "schema": "https://schema.org/"
+        },
+
+        "@id": "store:",
+        "@type": "http://www.w3.org/2002/07/owl#Ontology",
+
+        "@included": [
+            {
+                "@id": "store:Order",
+                "@type": "rdfs:Class",
+                "rdfs:subClassOf": [ { "@id": "api:Resource" }, { "@id": "schema:Order" } ],
+                "rdfs:comment": "The class of Orders at my online store."
+            },
+            {
+                "@id": "store:Cancel",
+                "@type": "rdfs:Class",
+                "rdfs:subClassOf": { "@id": "api:Action" },
+                "rdfs:comment": "The general act of canceling something that is cancelable."
+            },
+            {
+                "@id": "store:cancel",
+                "@type": "rdfs:Property",
+                "rdfs:subPropertyOf": { "@id": "api:action" },
+                "rdfs:domain": { "@id": "store:Order" },
+                "rdfs:range" : { "@id": "store:Cancel" },
+                "rdfs:comment": "An HTTP POST to my object's URL cancels the order identified by my subject. The request body can include a comment explaining why the order is being canceled."
+            }
+        ]
+    }
+
+An example order that, at the time of retrieval, is still cancelable:
+
+    GET /orders/1234 HTTP/1.1
+    Host: store.example.com
+    Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+
+
+    HTTP/1.1 200 OK
+    Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Date: Thu, 17 Jul 2025 20:15:30 GMT
+    ETag: "Rev-3"
+
+    {
+        "@context": {
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "store": "http://example.com/ns/store#",
+            "schema": "https://schema.org/"
+        },
+        "@id": "",
+        "@type": "store:Order",
+        "rdfs:comment": "Open order 1234",
+        "schema:orderStatus": { "@id": "schema:OrderProcessing" },
+        "store:cancel": { "@id": "/orders/1234/cancel/4DEC82DE" }
+    }
+
+The `store:cancel` property above asserts that the action target
+`/orders/1234/cancel/4DEC82DE` is _bound_ to the order resource `/orders/1234`,
+and that a `POST` to that action target will cancel this order. The client
+application is expected to understand the semantics of the `store:cancel`
+property to use it.
+
+To attempt to cancel this order as long as it’s in the same state as shown
+above, perform a conditional HTTP `POST` to the `store:cancel` target URL:
+
+    POST /orders/1234/cancel/4DEC82DE HTTP/1.1
+    Host: store.example.com
+    Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    If: </orders/1234> (["Rev-3"])
+
+    {
+        "@id": "",
+        "http://www.w3.org/2000/01/rdf-schema#comment": "I don't want this anymore"
+    }
+
+
+    HTTP/1.1 204 No Content
+    Location: /orders/1234
+    Date: Thu, 17 Jul 2025 20:16:03 GMT
+
+
+    GET /orders/1234 HTTP/1.1
+    Host: store.example.com
+    Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+
+
+    HTTP/1.1 200 OK
+    Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
+    Date: Thu, 17 Jul 2025 20:16:04 GMT
+    ETag: "Rev-4"
+
+    {
+        "@context": {
+            "store": "http://example.com/ns/store#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "schema": "https://schema.org/"
+        },
+        "@id": "",
+        "@type": "store:Order",
+        "schema:orderStatus": { "@id": "schema:OrderCancelled" },
+        "rdfs:comment": "Canceled order 1234"
+    }
+
+Notice that the representation of the new state of the order doesn’t include
+a `store:cancel` property anymore, because that action is no longer available.
+Notice also that the response to the `POST` request
+[indicates via the `Location` header](https://www.rfc-editor.org/rfc/rfc9111.html#section-4.4-3)
+that any cached representation of the order resource should be invalidated.
+
+Note that an action target URL isn’t required to be at sub-path of its bound
+subject; however, an action target URL **SHOULD** be in the same origin as
+its bound subject for the reasons discussed in
+[Security and Privacy Considerations](#security-and-privacy-considerations)
+and
+[HTTP Cache Invalidation](https://www.rfc-editor.org/rfc/rfc9111.html#name-invalidating-stored-respons),
+and particularly if the action can be conditioned on the subject’s `ETag`
+with [`If`][If].
 
 Problem Details
 ---------------
@@ -524,3 +664,4 @@ that don't belong with the other origins.
   [N-Triples]: https://www.w3.org/TR/n-triples/
   [TERSE-API]: http://zenomt.com/ns/terse-api
   [HTTP-STATUS]: https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+  [If]: https://www.rfc-editor.org/rfc/rfc4918.html#section-10.4

@@ -113,6 +113,19 @@
             "@type": "rdfs:class",
             "rdfs:subClassOf": { "@id": "rdfs:Resource" },
             "rdfs:comment": "A detailed description of an HTTP error response. My subclasses are more specific error types."
+        },
+        {
+            "@id": "api:Action",
+            "@type": "rdfs:class",
+            "rdfs:subClassOf": { "@id": "api:Resource" },
+            "rdfs:comment": "The class of actions (including webhooks) that can be invoked by HTTP POST. An action is expected to have side effects on other resources. Subclasses define the general meaning of the action. Membership in this class is implied by the rdfs:range of a concrete api:action sub-property. Membership in this class makes no implication on the semantics of the URI for methods other than POST."
+        },
+        {
+            "@id": "api:action",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "rdfs:Resource" },
+            "rdfs:range": { "@id": "api:Action" },
+            "rdfs:comment": "An HTTP POST to the object's URI invokes the action indicated by the concrete sub-property's rdfs:range on, or in the context of, the subject. Concrete sub-properties define the specific action semantics, and constraints or expectations on the POST request, if any."
         }
     ]
 }
