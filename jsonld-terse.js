@@ -155,7 +155,11 @@ class com_zenomt_JSONLD_Terse {
 			{
 				key = this.constructor._expandUri(key, true, context);
 				if(key)
+				{
+					if(!this._nodes.has(key))
+						this._nodes.set(key, { "@id": key });
 					rv[key] = Array.from(new Set((rv[key] ?? []).concat((Array.isArray(value) ? value : [value]).map(v => this._basicMerge(v, context)))));
+				}
 			}
 		}
 
