@@ -59,7 +59,7 @@ class com_zenomt_JSONLD_Terse {
 
 		const included = [];
 		for(const node of this.nodes)
-			if(!context.visited.has(node))
+			if((!context.visited.has(node)) && Object.keys(node).some(k => k[0] != "@"))
 				included.push(this._basicAsTree(node, context));
 		if(included.length > 0)
 			rv["@included"] = included;
