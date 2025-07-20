@@ -1,6 +1,6 @@
 {
     "@context": {
-        "schema": "http://schema.org/"
+        "schema": "https://schema.org/"
     },
     "schema:name": "Manu Sporny",
     "schema:url": { "@id": "http://manu.sporny.org/" },

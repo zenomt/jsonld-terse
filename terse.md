@@ -139,7 +139,7 @@ Example 1
     "@context": {
         "@base":  "https://example.com/people/card",
         "foaf":   "http://xmlns.com/foaf/0.1/",
-        "schema": "http://schema.org/"
+        "schema": "https://schema.org/"
     },
     "@id": "#me",
     "@type": ["foaf:Person", "schema:Person"],
@@ -163,7 +163,7 @@ Example 1
 ```
 @base           <https://example.com/people/card> .
 @prefix foaf:   <http://xmlns.com/foaf/0.1/> .
-@prefix schema: <http://schema.org/> .
+@prefix schema: <https://schema.org/> .
 
 <#me>
     a foaf:Person, schema:Person;
@@ -185,18 +185,18 @@ _:b99 foaf:knows _:b86 .
 #### Graph Resolved to N-Triples
 ```
 <https://example.com/people/card#me> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .
-<https://example.com/people/card#me> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Person> .
+<https://example.com/people/card#me> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Person> .
 <https://example.com/people/card#me> <http://xmlns.com/foaf/0.1/name> "Michael Thornburgh"@en-us .
 <https://example.com/people/card#me> <http://xmlns.com/foaf/0.1/nick> "Mike" .
 <https://example.com/people/card#me> <http://xmlns.com/foaf/0.1/depiction> <https://example.com/people/mike.jpg> .
-<https://example.com/people/card#me> <http://schema.org/worksFor> _:b0 .
+<https://example.com/people/card#me> <https://schema.org/worksFor> _:b0 .
 
 <https://example.com/people/card> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/PersonalProfileDocument> .
 <https://example.com/people/card> <http://xmlns.com/foaf/0.1/primaryTopic> <https://example.com/people/card#me> .
 
-_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/Corporation> .
-_:b0 <http://schema.org/name> "Example Corp." .
-_:b0 <http://schema.org/employee> <https://example.com/people/card#me> .
+_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Corporation> .
+_:b0 <https://schema.org/name> "Example Corp." .
+_:b0 <https://schema.org/employee> <https://example.com/people/card#me> .
 
 _:b1 <http://xmlns.com/foaf/0.1/knows> _:b2 .
 
@@ -209,13 +209,13 @@ Example 2
 ```
 {
   "@context": {
-    "name": "http://schema.org/name",
+    "name": "https://schema.org/name",
     "image": {
-      "@id": "http://schema.org/image",
+      "@id": "https://schema.org/image",
       "@type": "@id"
     },
     "homepage": {
-      "@id": "http://schema.org/url",
+      "@id": "https://schema.org/url",
       "@type": "@id"
     }
   },
@@ -229,7 +229,7 @@ Example 2
 ```
 {
     "@context": {
-        "schema": "http://schema.org/"
+        "schema": "https://schema.org/"
     },
     "schema:name": "Manu Sporny",
     "schema:url": { "@id": "http://manu.sporny.org/" },
@@ -239,7 +239,7 @@ Example 2
 
 #### Same Graph Expressed as Idiomatic Turtle
 ```
-@prefix schema: <http://schema.org/> .
+@prefix schema: <https://schema.org/> .
 
 [
     schema:name "Manu Sporny";
@@ -250,9 +250,9 @@ Example 2
 
 #### Graph Resolved to N-Triples
 ```
-_:b0 <http://schema.org/name> "Manu Sporny" .
-_:b0 <http://schema.org/url> <http://manu.sporny.org/> .
-_:b0 <http://schema.org/image> <http://manu.sporny.org/images/manu.png> .
+_:b0 <https://schema.org/name> "Manu Sporny" .
+_:b0 <https://schema.org/url> <http://manu.sporny.org/> .
+_:b0 <https://schema.org/image> <http://manu.sporny.org/images/manu.png> .
 ```
 
   [JSON-LD]: https://json-ld.org/
