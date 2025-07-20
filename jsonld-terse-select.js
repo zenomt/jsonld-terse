@@ -1,53 +1,45 @@
 // Copyright © 2025 Michael Thornburgh
 // SPDX-License-Identifier: MIT
-// A mix-in to com_zenomt_JSONLD_Terse to provide basic querying of the graph.
+// A mix-in for com_zenomt_JSONLD_Terse to provide basic querying of the graph.
 
-com_zenomt_JSONLD_Terse.prototype.select = function({s, p, o, literal, nodes, filter = (s,p,o) => true} = {}) {
+com_zenomt_JSONLD_Terse.prototype.select = function({s, p, o, literal, nodes, column, filter} = {}) {
 	const rv = [];
-	const allNodes = this.nodes;
 	const querySubjectNode = this.get(s);
-	const queryPredicateNode = this.get(p);
 	const queryObjectNode = this.get(o);
-	nodes = nodes ?? (s ? [querySubjectNode] : allNodes);
+	nodes = nodes ?? (s ? [querySubjectNode] : this.nodes);
 	literal = (literal != null) ? (this.constructor._isPrimitive(literal) ? { "@value": literal } : literal) : null;
 
-	if((s && !querySubjectNode) || (p && !queryPredicateNode) || (o && !queryObjectNode))
+	if((s && !querySubjectNode) || (p && !this.get(p)) || (o && !queryObjectNode))
 		return rv;
 
 	for(const subject of nodes)
 	{
-		if((querySubjectNode && (subject != querySubjectNode)) || (! subject in allNodes))
+		if((querySubjectNode && (subject != querySubjectNode)))
 			continue;
 
-		for(const [key, values] of Object.entries(subject))
+		for(const [key, values] of (p ? (subject[p] ? [[p, subject[p] ?? []]] : []) : Object.entries(subject)))
 		{
 			if(key[0] != "@")
 			{
 				const predicate = this.get(key);
-				if(queryPredicateNode && (predicate != queryPredicateNode))
-					continue;
 
-				for(const value of values)
+				for(const _object of values)
 				{
-					if(queryObjectNode && (value != queryObjectNode))
+					if(queryObjectNode && (_object != queryObjectNode))
 						continue;
 
 					if(literal)
-						if((! "@value" in value) || ["@value", "@language", "@direction", "@type"].some(k => ((k in literal) && literal[k] != value[k])))
+						if((! "@value" in _object) || ["@value", "@language", "@direction", "@type"].some(k => ((k in literal) && literal[k] != _object[k])))
 							continue;
 
-					if(filter && !filter(subject, predicate, value))
+					if(filter && !filter(subject, predicate, _object))
 						continue;
 
-					rv.push({ subject, predicate, _object: value });
+					rv.push({ subject, predicate, _object });
 				}
 			}
 		}
 	}
 
-	return rv;
+	return column ? Array.from(new Set(rv.map(each => each[column]))) : rv;
 }
-
-com_zenomt_JSONLD_Terse.subjects = triples => new Set(triples.map(each => each["subject"]));
-com_zenomt_JSONLD_Terse.predicates = triples => new Set(triples.map(each => each["predicate"]));
-com_zenomt_JSONLD_Terse.objects = triples => new Set(triples.map(each => each["_object"]));
