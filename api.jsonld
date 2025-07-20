@@ -118,7 +118,7 @@
             "@id": "api:Action",
             "@type": "rdfs:class",
             "rdfs:subClassOf": { "@id": "api:Resource" },
-            "rdfs:comment": "The class of actions (including webhooks) that can be invoked by HTTP POST. An action is expected to have side effects on other resources. Subclasses define the general meaning of the action. Membership in this class is implied by the rdfs:range of a concrete api:action sub-property. Membership in this class makes no implication on the semantics of the URI for methods other than POST."
+            "rdfs:comment": "The class of actions (including event and webhook callbacks) that can be invoked by HTTP POST. An action is expected to have side effects on other resources. Subclasses define the general meaning of the action. Membership in this class is implied by the rdfs:range of a concrete api:action sub-property. Membership in this class makes no implication on the semantics of the URI for methods other than POST."
         },
         {
             "@id": "api:action",
