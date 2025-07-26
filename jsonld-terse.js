@@ -236,7 +236,7 @@ class com_zenomt_JSONLD_Terse {
 		if(colonPosition >= 0)
 		{
 			const prefix = uri.substring(0, colonPosition);
-			return (typeof(prefixes[prefix]) == "string") ? prefixes[prefix] + uri.substring(colonPosition + 1) : uri;
+			return ((typeof(prefixes[prefix]) == "string") && (uri.indexOf("://") != colonPosition)) ? prefixes[prefix] + uri.substring(colonPosition + 1) : uri;
 		}
 		return prefixes[uri] ?? (isKey ? (vocab ? vocab + uri : null) : (new URL(uri, baseUri)).href);
 	}

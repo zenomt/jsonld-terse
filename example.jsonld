@@ -2,7 +2,8 @@
     "@context": {
         "foaf":   "http://xmlns.com/foaf/0.1/",
         "schema": "https://schema.org/",
-        "owl":    "http://www.w3.org/2002/07/owl#"
+        "owl":    "http://www.w3.org/2002/07/owl#",
+        "http":   "http://www.example.com/http-ns#"
     },
     "@metadata": {
         "@context": {
@@ -27,6 +28,8 @@
     "@included": [
         { "@id": "", "@type": "foaf:PersonalProfileDocument", "foaf:primaryTopic": { "@id": "card#me" } },
         { "@id": "_:b86", "foaf:knows": { "@id": "_:b99" } },
-        { "@id": "_:b99", "foaf:knows": { "@id": "_:b86" } }
+        { "@id": "_:b99", "foaf:knows": { "@id": "_:b86" } },
+        { "http:foo": { "@id": "http:bar" } },
+        { "http://www.example.com/other-ns#bar": { "@id": "http://www.example.com/other-ns#baz" } }
     ]
 }
