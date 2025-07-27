@@ -30,6 +30,8 @@
         { "@id": "_:b86", "foaf:knows": { "@id": "_:b99" } },
         { "@id": "_:b99", "foaf:knows": { "@id": "_:b86" } },
         { "http:foo": { "@id": "http:bar" } },
-        { "http://www.example.com/other-ns#bar": { "@id": "http://www.example.com/other-ns#baz" } }
+        { "http://www.example.com/other-ns#bar": { "@id": "http://www.example.com/other-ns#baz" } },
+        { "@id": "..", "http:bif": "my subject is relative up" },
+        { "@id": "subdir/foo#", "http:bif": "my subject is relative down" }
     ]
 }

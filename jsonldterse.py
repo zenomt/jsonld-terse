@@ -1,7 +1,7 @@
 # Copyright © 2025 Michael Thornburgh
 # SPDX-License-Identifier: MIT
 
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlsplit, urljoin, urldefrag
 import copy
 import json
 
@@ -26,11 +26,94 @@ class JSONLD_Terse:
 
 	@property
 	def nodes(self):
-		return set(self._nodes.values())
+		return list(self._nodes.values())
 
 	@property
 	def root(self):
 		return self._root or self._first(self._nodes.values())
+
+	@root.setter
+	def root(self, uriOrNode):
+		self._root = self.get(uriOrNode)
+
+	def asTriples(self):
+		nextBlank = 0
+		blanks = {}
+		def getId(node):
+			nonlocal nextBlank
+			rv = node.get("@id", None) or blanks.get(id(node), None)
+			if rv != None:
+				return rv
+			name = "_:b" + str(nextBlank)
+			nextBlank += 1
+			blanks[id(node)] = name
+			return name
+		def valueObject(node):
+			if type(node) == list:
+				return list(map(valueObject, node))
+			if "@list" in node:
+				return { "@list": list(map(valueObject, node["@list"])) }
+			if "@value" in node:
+				return self._adaptLiteral(node)
+			return { "@id": getId(node) }
+		rv = []
+		for node in self.nodes:
+			subject = getId(node)
+			for predicate, values in node.items():
+				if predicate[:1] != "@":
+					for value in values:
+						rv.append(dict(subject=subject, predicate=predicate, _object=valueObject(value)))
+		return rv
+
+	def asTree(self, root = None, noArray = False, base = None, rawLiteral = False):
+		root = self.get(root) if root else self.root
+		base = self._resolveUri("", base) if base is not None else None
+		basePath = self._resolveUri(".", base) if base is not None else None
+		baseRoot = self._resolveUri("/", base) if base is not None else None
+		ctx = dict(visited={}, nextBlank=0, noArray=noArray, base=base, basePath=basePath, baseRoot=baseRoot, rawLiteral=rawLiteral)
+		rv = self._basicAsTree(root, ctx) if root is not None else {}
+		included = []
+		for ident, node in self._nodes.items():
+			if (ident not in ctx["visited"]) and any(map(lambda k: k[:1] != "@", node.keys())):
+				included.append(self._basicAsTree(node, ctx))
+		if len(included):
+			rv["@included"] = included
+		return rv
+
+	def asJSON(self, root = None, indent = None, separators = None, noArray = False, base = None, rawLiteral = False):
+		return json.dumps(self.asTree(root, noArray=noArray, base=base, rawLiteral=rawLiteral), indent=indent, separators=separators)
+
+	def _makeRelative(self, uri, base, basePath, baseRoot, **unused):
+		if not base:
+			return uri
+		uri_split = urlsplit(uri)
+		base_split = urlsplit(base)
+		if uri_split.scheme != base_split.scheme or uri_split.netloc != base_split.netloc:
+			return uri
+		if urldefrag(uri)[0] == base:
+			return ("#" if uri_split.fragment or uri[-1:] == "#" else "") + uri_split.fragment
+		if self._resolveUri(".", uri).startswith(basePath):
+			return uri[len(basePath):] or "."
+		return uri[len(baseRoot) - 1:]
+
+	def _basicAsTree(self, node, ctx):
+		if type(node) == list:
+			return self._basicAsTree(node[0], ctx) if len(node) == 1 and ctx["noArray"] else list(map(lambda v: self._basicAsTree(v, ctx), node))
+		if "@list" in node:
+			return { "@list": list(map(lambda v: self._basicAsTree(v, ctx), node["@list"])) }
+		if "@value" in node:
+			return self._adaptLiteral(node, rawLiteral=ctx["rawLiteral"])
+		item = ctx["visited"].get(id(node))
+		if item is not None:
+			if "@id" not in item:
+				item["@id"] = "_:b" + str(ctx["nextBlank"])
+				ctx["nextBlank"] += 1
+			return { "@id": item["@id"] }
+		rv = {}
+		ctx["visited"][id(node)] = rv
+		for key, value in node.items():
+			rv[key] = self._makeRelative(value, **ctx) if key == "@id" else self._basicAsTree(value, ctx)
+		return rv
 
 	def _basicMerge(self, node, depth, visited, blankNodes, prefixes, baseUri, vocab, maxDepth, literals):
 		depth += 1
@@ -82,21 +165,11 @@ class JSONLD_Terse:
 		return rv
 
 	@staticmethod
-	def _unique(iterable):
-		seen = set()
-		rv = []
-		for each in iterable:
-			if id(each) not in seen:
-				seen.add(id(each))
-				rv.append(each)
-		return rv
-
-	@staticmethod
 	def _resolveUri(uri, baseUri):
-		if uri and not baseUri:
+		if uri is not None and not baseUri:
 			return uri
-		if uri != None:
-			rv = urljoin(baseUri, uri)
+		if uri is not None:
+			rv = urldefrag(baseUri)[0] if uri == '' else urljoin(baseUri, uri)
 			if uri[-1:] == "#" and rv[-1:] != "#":
 				# bug in urljoin, empty fragment is distinct from no fragment!
 				rv += "#"
@@ -158,6 +231,16 @@ class JSONLD_Terse:
 		prefixes = cls._overlayPrefixes(prefixes, context, baseUri)
 		vocab = cls._resolveVocab(context, vocab, baseUri)
 		return baseUri, prefixes, vocab
+
+	@staticmethod
+	def _unique(iterable):
+		seen = set()
+		rv = []
+		for each in iterable:
+			if id(each) not in seen:
+				seen.add(id(each))
+				rv.append(each)
+		return rv
 
 	@staticmethod
 	def _first(iterable):
