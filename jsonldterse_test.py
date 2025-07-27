@@ -1,0 +1,111 @@
+#! /usr/bin/env python3 --
+
+from jsonldterse import JSONLD_Terse
+import json
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', default=0, action='count')
+
+args = parser.parse_args()
+
+def test_example(graph):
+	assert (me := graph.get("https://zenomt.github.io/jsonld-terse/card#me"))
+	assert graph.root == me
+	assert len(me['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']) == 2
+	assert len(me['http://xmlns.com/foaf/0.1/name']) == 1
+	assert len(me['http://xmlns.com/foaf/0.1/name'][0]) == 2
+	assert len(me) == 6
+
+def test_example2(graph):
+	assert (person := graph.root)
+	assert person['https://schema.org/name']
+	assert person['https://schema.org/name'][0]["@value"] == "Manu Sporny"
+	assert graph.get(person['https://schema.org/url'][0])
+	assert graph.get(person['https://schema.org/url'][0]) == graph.get(person['https://schema.org/url'][0]["@id"])
+
+def test_example3(graph):
+	assert (node := graph.get("https://zenomt.github.io/jsonld-terse/example3.jsonld#test"))
+	assert (five := node['http://example.com/ns#five'])
+	assert len(five) == 1
+	assert len(five[0]["@list"]) == 3
+	assert (prims := node["http://example.com/ns#primitives"])
+	# order should be preserved even though that's not a thing in RDF, including through a uniquing merge
+	assert len(prims) == 6
+	assert prims[0]["@value"] is None
+	assert prims[1]["@value"] is True
+	assert prims[2]["@value"] is False
+	assert prims[3]["@value"] == 3
+	assert prims[4]["@value"] == "literal"
+	assert prims[5]["@value"] == -4
+
+def test_example4(graph):
+	assert (node := graph.root)
+	assert len(node["http://example.com/ns#one"]) == 2
+	assert len(node["http://example.com/ns#one"][0]) == 2
+	assert len(node["http://example.com/ns#one"][0][0]) == 2
+	assert len(node["http://example.com/ns#one"][1]) == 4
+	assert len(node["three:"]) == 1
+	assert (two := node["http://example.com/ns#two"])
+	assert two[0]["@type"] == "http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON"
+	assert len(two[0]["@value"]) == 5
+	assert two[2]["@value"]["@id"] == "#not-a-uri"
+
+def test_example5(graph):
+	assert (node := graph.get("https://zenomt.github.io/jsonld-terse/example5.jsonld#1"))
+	assert node["urn:private:pred"][0]["urn:private:pred"][0] == node
+	assert (priv1 := graph.get("urn:private:name:1"))
+	assert priv1["urn:private:pred"][0] == graph.get("urn:private:name:2")
+	assert priv1["urn:private:pred"][0]["urn:private:pred"][0]["urn:private:pred"][0] == priv1
+	assert priv1 != graph.get("urn:private:name:2")
+
+def test_example6(graph):
+	assert (node := graph.get("https://zenomt.github.io/jsonld-terse/example6.jsonld#test"))
+	assert node == graph.root
+	assert (blanks := node["http://example.com/ns#blanks"][0]["@list"])
+	assert len(blanks) == 5
+	assert blanks[0]["http://example.com/ns#knows"][0] == blanks[1]
+	blankReg = blanks[3]
+	assert blankReg["http://example.com/ns#knows"][1] == blankReg
+	assert blankReg["http://example.com/ns#knows"][2] == blanks[1]
+	assert "@id" not in blankReg
+	assert graph.get(blankReg) == blankReg
+	assert graph.get(dict(blankReg)) != blankReg
+
+def test_example8(graph):
+	assert (node := graph.get("http://example.com/ns"))
+	assert node["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"][0]["@id"] == "http://www.w3.org/2002/07/owl#Ontology"
+	assert (res := graph.get("http://example.com/ns#Resource"))
+	assert res["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"][0]["@id"] == "http://www.w3.org/2000/01/rdf-schema#Class"
+	assert res["http://www.w3.org/2000/01/rdf-schema#subClassOf"][0] == graph.get("http://zenomt.com/ns/terse-api#Resource")
+	assert (item := graph.get("http://example.com/ns#Item"))
+	assert item["http://www.w3.org/2000/01/rdf-schema#subClassOf"][0] == res
+
+test_files = [
+	( "example.jsonld", "https://zenomt.github.io/jsonld-terse/example.jsonld", test_example ),
+	( "example2.jsonld", "https://zenomt.github.io/jsonld-terse/example2.jsonld", test_example2 ),
+	( "example3.jsonld", "https://zenomt.github.io/jsonld-terse/example3.jsonld", test_example3 ),
+	( "example4.jsonld", "https://zenomt.github.io/jsonld-terse/example4.jsonld", test_example4 ),
+	( "example5.jsonld", "https://zenomt.github.io/jsonld-terse/example5.jsonld", test_example5 ),
+	( "example6.jsonld", "https://zenomt.github.io/jsonld-terse/example6.jsonld", test_example6 ),
+	( "example8.jsonld", "https://zenomt.github.io/jsonld-terse/example8.jsonld", test_example8 ),
+	( "example9.jsonld", "https://zenomt.github.io/jsonld-terse/example9.jsonld", None ),
+	( "api.jsonld", "http://zenomt.com/ns/terse-api", None )
+]
+
+def run_file_tests():
+	"""try the samples to make sure they don't cause a crash"""
+	for name, baseUri, tester in test_files:
+		print(f"file:{name}  base:{baseUri}")
+		with open(name, "r", encoding="utf-8") as f:
+			raw = f.read()
+			if args.verbose: print("raw", raw)
+			node = json.loads(raw)
+			if args.verbose: print("node", node)
+			graph = JSONLD_Terse(node, documentUri=baseUri)
+			if args.verbose > 1: print(f"graph: {graph._nodes}")
+			if tester:
+				tester(graph)
+
+if __name__ == "__main__":
+	run_file_tests()
