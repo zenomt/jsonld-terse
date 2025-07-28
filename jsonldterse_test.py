@@ -95,20 +95,19 @@ def test_example8(graph):
 	assert (item := graph.get("http://example.com/ns#Item"))
 	assert item["http://www.w3.org/2000/01/rdf-schema#subClassOf"][0] == res
 
-test_files = [
-	( "example.jsonld", "https://zenomt.github.io/jsonld-terse/example.jsonld", test_example ),
-	( "example2.jsonld", "https://zenomt.github.io/jsonld-terse/example2.jsonld", test_example2 ),
-	( "example3.jsonld", "https://zenomt.github.io/jsonld-terse/example3.jsonld", test_example3 ),
-	( "example4.jsonld", "https://zenomt.github.io/jsonld-terse/example4.jsonld", test_example4 ),
-	( "example5.jsonld", "https://zenomt.github.io/jsonld-terse/example5.jsonld", test_example5 ),
-	( "example6.jsonld", "https://zenomt.github.io/jsonld-terse/example6.jsonld", test_example6 ),
-	( "example8.jsonld", "https://zenomt.github.io/jsonld-terse/example8.jsonld", test_example8 ),
-	( "example9.jsonld", "https://zenomt.github.io/jsonld-terse/example9.jsonld", None ),
-	( "api.jsonld", "http://zenomt.com/ns/terse-api", None )
-]
-
 def run_file_tests():
 	"""try the samples to make sure they don't cause a crash"""
+	test_files = [
+		( "example.jsonld", "https://zenomt.github.io/jsonld-terse/example.jsonld", test_example ),
+		( "example2.jsonld", "https://zenomt.github.io/jsonld-terse/example2.jsonld", test_example2 ),
+		( "example3.jsonld", "https://zenomt.github.io/jsonld-terse/example3.jsonld", test_example3 ),
+		( "example4.jsonld", "https://zenomt.github.io/jsonld-terse/example4.jsonld", test_example4 ),
+		( "example5.jsonld", "https://zenomt.github.io/jsonld-terse/example5.jsonld", test_example5 ),
+		( "example6.jsonld", "https://zenomt.github.io/jsonld-terse/example6.jsonld", test_example6 ),
+		( "example8.jsonld", "https://zenomt.github.io/jsonld-terse/example8.jsonld", test_example8 ),
+		( "example9.jsonld", "https://zenomt.github.io/jsonld-terse/example9.jsonld", None ),
+		( "api.jsonld", "http://zenomt.com/ns/terse-api", None )
+	]
 	for name, baseUri, tester in test_files:
 		with open(name, "r", encoding="utf-8") as f:
 			if args.only is not None and name != args.only:
@@ -131,5 +130,24 @@ def run_file_tests():
 				for each in triples:
 					print(f"{each['subject']}  {each['predicate']}  {json.dumps(each['_object'])}")
 
+def test_effectiveRootContext():
+	name = "example.jsonld"
+	if args.only is not None and name != args.only:
+		return
+	print("\ntest_effectiveRootContext example.jsonld")
+	with open(name, "r", encoding="utf-8") as f:
+		raw = f.read()
+		doc = json.loads(raw)
+		effectiveRootContext = JSONLD_Terse.effectiveRootContext(doc, documentUri="https://zenomt.github.io/jsonld-terse/example.jsonld")
+		if args.verbose: print("raw", raw, "\n", "effectiveRootContext", json.dumps(effectiveRootContext, indent=4))
+		graph = JSONLD_Terse(doc["@metadata"], fallbackContext=effectiveRootContext)
+		if args.verbose: print("metadata graph", graph.asJSON(indent=4, noArray=True, rawLiteral=True))
+		assert (node := graph.get("https://zenomt.github.io/jsonld-terse/example.jsonld?cursor=2"))
+		assert node["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"][0]["@id"] == "http://zenomt.com/ns/terse-api#Page"
+		assert node["http://zenomt.com/ns/terse-api#prevPage"][0] == graph.get("https://zenomt.github.io/jsonld-terse/example.jsonld?cursor=1")
+		assert node["http://zenomt.com/ns/terse-api#nextPage"][0] == graph.get("https://zenomt.github.io/jsonld-terse/example.jsonld?cursor=3")
+		assert node["http://zenomt.com/ns/terse-api#pageOf"][0] == graph.get("https://zenomt.github.io/jsonld-terse/example.jsonld")
+
 if __name__ == "__main__":
 	run_file_tests()
+	test_effectiveRootContext()

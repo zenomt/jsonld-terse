@@ -83,6 +83,16 @@ class JSONLD_Terse:
 	def asJSON(self, root = None, indent = None, separators = None, noArray = False, base = None, rawLiteral = False):
 		return json.dumps(self.asTree(root, noArray=noArray, base=base, rawLiteral=rawLiteral), indent=indent, separators=separators)
 
+	@classmethod
+	def effectiveRootContext(cls, node, documentUri = None, vocab = None, fallbackContext = None):
+		baseUri, prefixes, vocab = cls._resolveContext(documentUri, vocab, fallbackContext, {})
+		baseUri, prefixes, vocab = cls._resolveContext(baseUri, vocab, node.get("@context", None) if node else None, prefixes)
+		if baseUri:
+			prefixes["@base"] = baseUri
+		if vocab:
+			prefixes["@vocab"] = vocab
+		return prefixes
+
 	def _makeRelative(self, uri, base, basePath, baseRoot, **unused):
 		if not base:
 			return uri
