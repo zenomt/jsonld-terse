@@ -148,6 +148,30 @@ def test_effectiveRootContext():
 		assert node["http://zenomt.com/ns/terse-api#nextPage"][0] == graph.get("https://zenomt.github.io/jsonld-terse/example.jsonld?cursor=3")
 		assert node["http://zenomt.com/ns/terse-api#pageOf"][0] == graph.get("https://zenomt.github.io/jsonld-terse/example.jsonld")
 
+def test_select():
+	name = "example.jsonld"
+	if args.only is not None and name != args.only:
+		return
+	print("\ntest_select example.jsonld")
+	with open(name, "r", encoding="utf-8") as f:
+		raw = f.read()
+		doc = json.loads(raw)
+		graph = JSONLD_Terse(doc, documentUri="https://zenomt.github.io/jsonld-terse/example.jsonld")
+		assert len(graph.select(s="https://zenomt.github.io/jsonld-terse/card#me")) == 6
+		assert len(graph.select(s=graph.get("https://zenomt.github.io/jsonld-terse/card#me"))) == 6
+		assert len(graph.select(p="http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) == 4
+		assert len(graph.select(p=graph.get("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))) == 4
+		assert len(graph.select(s="https://zenomt.github.io/jsonld-terse/card#me", p="http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) == 2
+		assert len(graph.select(s="http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) == 0
+		assert len(graph.select(s="http://www.notfound")) == 0
+		assert graph.select(literal={"@language": "en-us"}, column="subject")[0] == graph.get("https://zenomt.github.io/jsonld-terse/card#me")
+		assert graph.select(o="http://xmlns.com/foaf/0.1/PersonalProfileDocument", column="subject")[0] == graph.get("https://zenomt.github.io/jsonld-terse/example.jsonld")
+		assert graph.select(p="http://xmlns.com/foaf/0.1/depiction")[0]["_object"]["@id"] == "https://zenomt.zenomt.com/mike-2017.jpg"
+		assert graph.select(o=graph.get("https://schema.org/Person"), column="subject")[0] == graph.get("https://zenomt.github.io/jsonld-terse/card#me")
+		assert graph.select(p="http://www.w3.org/1999/02/22-rdf-syntax-ns#type", o="https://schema.org/Corporation")[0]["subject"]["https://schema.org/name"][0]["@value"] == "Example Corp."
+		assert graph.select(p="http://www.w3.org/1999/02/22-rdf-syntax-ns#type", o="https://schema.org/Corporation")[0]["subject"] == graph.select(literal="Example Corp.", column="subject")[0]
+
 if __name__ == "__main__":
 	run_file_tests()
 	test_effectiveRootContext()
+	test_select()

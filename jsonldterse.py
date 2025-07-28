@@ -83,6 +83,33 @@ class JSONLD_Terse:
 	def asJSON(self, root = None, indent = None, separators = None, noArray = False, base = None, rawLiteral = False):
 		return json.dumps(self.asTree(root, noArray=noArray, base=base, rawLiteral=rawLiteral), indent=indent, separators=separators)
 
+	def select(self, s = None, p = None, o = None, literal = None, nodes = None, column = None, filter = None):
+		rv = []
+		querySubjectNode = self.get(s)
+		queryPredicateNode = self.get(p)
+		queryObjectNode = self.get(o)
+		nodes = nodes or ([querySubjectNode] if s is not None else self._nodes.values())
+		literal = ({ "@value": literal } if self._isPrimitive(literal) else literal) if literal is not None else None
+		if (s is not None and querySubjectNode is None) or (p is not None and queryPredicateNode is None) or (o is not None and queryObjectNode is None):
+			return rv
+		queryPredicateUri = queryPredicateNode.get("@id", None) if queryPredicateNode is not None else None
+		for subject in nodes:
+			if querySubjectNode is not None and subject is not querySubjectNode:
+				continue
+			for key, values in (([(queryPredicateUri, subject.get(queryPredicateUri, []))]) if p is not None else subject.items()):
+				if key[:1] != "@":
+					predicate = self.get(key)
+					for _object in values:
+						if queryObjectNode is not None and _object != queryObjectNode:
+							continue
+						if literal is not None:
+							if ("@value" not in _object) or any(map(lambda k: (k in literal) and literal[k] != _object.get(k, None), ["@value", "@language", "@direction", "@type"])):
+								continue
+						if filter is not None and not filter(subject, predicate, _object):
+							continue
+						rv.append(dict(subject=subject, predicate=predicate, _object=_object))
+		return self._unique(map(lambda each: each.get(column, None), rv)) if column else rv
+
 	@classmethod
 	def effectiveRootContext(cls, node, documentUri = None, vocab = None, fallbackContext = None):
 		baseUri, prefixes, vocab = cls._resolveContext(documentUri, vocab, fallbackContext, {})
