@@ -98,7 +98,7 @@ class JSONLD_Terse:
 				continue
 			for key, values in (([(queryPredicateUri, subject.get(queryPredicateUri, []))]) if p is not None else subject.items()):
 				if key[:1] != "@":
-					predicate = self.get(key)
+					predicate = queryPredicateNode or self.get(key)
 					for _object in values:
 						if queryObjectNode is not None and _object != queryObjectNode:
 							continue

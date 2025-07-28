@@ -170,6 +170,7 @@ def test_select():
 		assert graph.select(o=graph.get("https://schema.org/Person"), column="subject")[0] == graph.get("https://zenomt.github.io/jsonld-terse/card#me")
 		assert graph.select(p="http://www.w3.org/1999/02/22-rdf-syntax-ns#type", o="https://schema.org/Corporation")[0]["subject"]["https://schema.org/name"][0]["@value"] == "Example Corp."
 		assert graph.select(p="http://www.w3.org/1999/02/22-rdf-syntax-ns#type", o="https://schema.org/Corporation")[0]["subject"] == graph.select(literal="Example Corp.", column="subject")[0]
+		assert len(graph.select(filter=(lambda s,p,o: o.get("@value", None) == "Mike"))) == 1
 
 if __name__ == "__main__":
 	run_file_tests()
