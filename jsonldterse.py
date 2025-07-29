@@ -88,7 +88,7 @@ class JSONLD_Terse:
 		querySubjectNode = self.get(s)
 		queryPredicateNode = self.get(p)
 		queryObjectNode = self.get(o)
-		nodes = nodes or ([querySubjectNode] if s is not None else self._nodes.values())
+		nodes = nodes if nodes is not None else ([querySubjectNode] if s is not None else self._nodes.values())
 		literal = ({ "@value": literal } if self._isPrimitive(literal) else literal) if literal is not None else None
 		if (s is not None and querySubjectNode is None) or (p is not None and queryPredicateNode is None) or (o is not None and queryObjectNode is None):
 			return rv
