@@ -77,6 +77,13 @@
             "rdfs:comment": "The resource of which the subject is a view or projection."
         },
         {
+            "@id": "api:etag",
+            "@type": "rdfs:Property",
+            "rdfs:domain": { "@id": "rdfs:Resource" },
+            "rdfs:range": { "@id": "rdfs:Literal" },
+            "rdfs:comment": "An entity-tag of the subject resource, including the double-quote characters."
+        },
+        {
             "@id": "api:Container",
             "@type": "rdfs:Class",
             "rdfs:subClassOf": [ { "@id": "api:Resource" }, { "@id": "rdfs:Container" }, { "@id": "rdf:Bag" } ],

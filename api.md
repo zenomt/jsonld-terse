@@ -103,7 +103,7 @@ request URI (regardless of query parameters). A response can delegate authority
 for its URI namespace to other URIs by using the
 [`Location`](https://www.rfc-editor.org/rfc/rfc9110.html#name-location)
 and [`Content-Location`](https://www.rfc-editor.org/rfc/rfc9110.html#name-content-location)
-response header fields, `rdfs:seeAlso` links, and
+response header fields, `rdfs:seeAlso` links, [action](#actions) links, and
 [paging links](#metadata-and-paging), as might be encountered for example
 with `3XX` redirects, responses to a `POST` or `QUERY`, or paged responses.
 
@@ -500,7 +500,7 @@ Consider an example “Store” ontology that describes cancelable orders:
         ]
     }
 
-An example order that, at the time of retrieval, is still cancelable:
+An example order that is still cancelable at the time of retrieval:
 
     GET /orders/1234 HTTP/1.1
     Host: store.example.com
@@ -545,9 +545,17 @@ above, perform a conditional HTTP `POST` to the `store:cancel` target URL:
     }
 
 
-    HTTP/1.1 204 No Content
+    HTTP/1.1 200 OK
     Location: /orders/1234
+    Content-Type: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
     Date: Thu, 17 Jul 2025 20:16:03 GMT
+
+    {
+        "@metadata": {
+            "@id": "/orders/1234",
+            "http://zenomt.com/ns/terse-api#etag": "\"Rev-4\""
+        }
+    }
 
 
     GET /orders/1234 HTTP/1.1
@@ -576,7 +584,10 @@ Notice that the representation of the new state of the order doesn’t include
 a `store:cancel` property anymore, because that action is no longer available.
 Notice also that the response to the `POST` request
 [indicates via the `Location` header](https://www.rfc-editor.org/rfc/rfc9111.html#section-4.4-3)
-that any cached representation of the order resource should be invalidated.
+that any cached representation of the order resource should be invalidated,
+and advises the application via an `api:etag` claim in the response metadata
+graph of an updated `ETag` for the new state of the order resource, so an
+intervening modification could be detected.
 
 Note that an action target URL isn’t required to be at a sub-path of its bound
 subject; however, an action target URL **SHOULD** be in the same origin as
