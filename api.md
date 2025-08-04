@@ -456,12 +456,12 @@ new state of the resource.
 Actions
 -------
 An _action-binding triple_ is a triple whose predicate is a sub-property of
-`api:action`. An _Action_ is the object URL of an action-binding triple that,
-when `POST`ed to, invokes the functional process indicated by the semantics
-of the predicate on, or in the context of, the subject. Actions are intended
-to fill the gap where the standard, generic HTTP methods are inadequate to
-the desired processing semantics, or to convey the currently available state
-transitions of a resource via hypermedia controls.
+`api:action` or `api:idempotentAction`. An _Action_ is the object URL of an
+action-binding triple that, when `POST`ed to, invokes the functional process
+indicated by the semantics of the predicate on, or in the context of, the
+subject. Actions are intended to fill the gap where the standard, generic
+HTTP methods are inadequate to the desired processing semantics, or to convey
+the currently available state transitions of a resource via hypermedia controls.
 
 Consider an example “Store” ontology that describes cancelable orders:
 
@@ -492,7 +492,7 @@ Consider an example “Store” ontology that describes cancelable orders:
             {
                 "@id": "store:cancel",
                 "@type": "rdfs:Property",
-                "rdfs:subPropertyOf": { "@id": "api:action" },
+                "rdfs:subPropertyOf": { "@id": "api:idempotentAction" },
                 "rdfs:domain": { "@id": "store:Order" },
                 "rdfs:range" : { "@id": "store:Cancel" },
                 "rdfs:comment": "An HTTP POST to my object's URL cancels the order identified by my subject. The request body can include a comment explaining why the order is being canceled."

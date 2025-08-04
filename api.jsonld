@@ -133,6 +133,14 @@
             "rdfs:domain": { "@id": "rdfs:Resource" },
             "rdfs:range": { "@id": "api:Action" },
             "rdfs:comment": "An HTTP POST to the object's URI invokes the action indicated by the concrete sub-property's rdfs:range on, or in the context of, the subject. Concrete sub-properties define the specific action semantics, and constraints or expectations on the POST request, if any."
+        },
+        {
+            "@id": "api:idempotentAction",
+            "@type": "rdfs:Property",
+            "rdfs:subPropertyOf": { "@id": "api:action" },
+            "rdfs:domain": { "@id": "rdfs:Resource" },
+            "rdfs:range": { "@id": "api:Action" },
+            "rdfs:comment": "An HTTP POST to the object's URI invokes the idempotent action indicated by the concrete sub-property's rdfs:range on, or in the context of, the subject. Concrete sub-properties define the specific action semantics, and constraints or expectations on the POST request, if any."
         }
     ]
 }
