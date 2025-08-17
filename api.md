@@ -459,15 +459,16 @@ An _action-binding triple_ is a triple whose predicate is a sub-property of
 `api:action` or `api:idempotentAction`. An _Action_ is the object URL of an
 action-binding triple that, when `POST`ed to, invokes the functional process
 indicated by the semantics of the predicate on, or in the context of, the
-subject. Actions are intended to fill the gap where the standard, generic
-HTTP methods are inadequate to the desired processing semantics, or to convey
-the currently available state transitions of a resource via hypermedia controls.
-Clients **SHOULD NOT** invoke an Action unless the semantics and expected
-effects on the bound subject resource are understood.
+triple’s subject (the Action’s _target resource_). Actions are intended to
+fill the gap where the standard, generic HTTP methods are inadequate to the
+desired processing semantics, or to convey the currently available state
+transitions of a resource via hypermedia controls. Clients **SHOULD NOT**
+invoke an Action unless the semantics and expected effects on the bound target
+resource are understood.
 
-To aid generic clients in recognizing an Action without additional retrievals
-or inferencing, servers **SHOULD** materialize at least an `api:Action` type
-on the target URL.
+To aid simple generic clients in recognizing an Action without inferencing,
+servers **SHOULD** include in the Action’s graph a materialized `api:Action`
+type and an `api:target` link to the Action’s bound target resource.
 
 Consider an example “Store” ontology that describes cancelable orders:
 
@@ -493,7 +494,7 @@ Consider an example “Store” ontology that describes cancelable orders:
                 "@id": "store:Cancel",
                 "@type": "rdfs:Class",
                 "rdfs:subClassOf": { "@id": "api:Action" },
-                "rdfs:comment": "The general act of canceling something that is cancelable."
+                "rdfs:comment": "The class of actions that cancel Orders."
             },
             {
                 "@id": "store:cancel",
@@ -529,17 +530,22 @@ An example order that is still cancelable at the time of retrieval:
         "@type": "store:Order",
         "rdfs:comment": "Open order 1234",
         "schema:orderStatus": { "@id": "schema:OrderProcessing" },
-        "store:cancel": { "@id": "/orders/1234/cancel/4DEC82DE", "@type": [ "store:Cancel", "api:Action" ] }
+        "store:cancel": {
+            "@id": "/orders/1234/cancel/4DEC82DE",
+            "@type": [ "store:Cancel", "api:Action" ],
+            "rdfs:comment": "Cancel order 1234",
+            "api:target": { "@id": "" }
+        }
     }
 
 The `store:cancel` property above, being a sub-property of `api:idempotentAction`,
-asserts that the action target `/orders/1234/cancel/4DEC82DE` is _bound_ to
-the order resource `/orders/1234`, and that a `POST` to that action target
-will cancel this order. The client is expected to understand the semantics
-of the `store:cancel` property to use it.
+asserts that the Action URL `/orders/1234/cancel/4DEC82DE` is _bound_ to the
+order resource `/orders/1234`, and that a `POST` to that Action URL will
+cancel this order. The client is expected to understand the semantics of the
+`store:cancel` property to use it.
 
 To attempt to cancel this order as long as it’s in the same state as shown
-above, perform a conditional HTTP `POST` to the `store:cancel` target URL:
+above, perform a conditional HTTP `POST` to the `store:cancel` object URL:
 
     POST /orders/1234/cancel/4DEC82DE HTTP/1.1
     Host: store.example.com
@@ -594,15 +600,16 @@ and advises the application via an `api:etag` claim in the response metadata
 graph of an updated `ETag` for the new state of the order resource, so an
 intervening modification could be detected. Notice also that the representation
 of the new state of the order doesn’t include a `store:cancel` property
-anymore, because that action is no longer available.
+anymore, because that Action is no longer available.
 
-Note that an action target URL isn’t required to be at a sub-path of its bound
-subject; however, an action target URL **SHOULD** be in the same origin as
-its bound subject for the reasons discussed in
+Note that an Action URL isn’t required to be at a sub-path of its bound target
+(although authoritative statements about the Action can be made in the graph
+of the bound target if it is); however, an Action URL **SHOULD** be in the
+same origin as its bound target for the reasons discussed in
 [Security and Privacy Considerations](#security-and-privacy-considerations)
 and
 [HTTP Cache Invalidation](https://www.rfc-editor.org/rfc/rfc9111.html#name-invalidating-stored-respons),
-and particularly if the action can be conditioned on the subject’s `ETag`
+and particularly if the Action can be conditioned on the subject’s `ETag`
 with [`If`][If].
 
 Problem Details

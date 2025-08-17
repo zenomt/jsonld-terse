@@ -2,12 +2,13 @@
     "@context": {
         "rdf": "https://www.w3.org/1999/02/22-rdf-syntax-ns#",
         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "owl": "http://www.w3.org/2002/07/owl#",
         "dcterms": "http://purl.org/dc/terms/",
         "api": "http://zenomt.com/ns/terse-api#"
     },
 
     "@id": "http://zenomt.com/ns/terse-api",
-    "@type": "http://www.w3.org/2002/07/owl#Ontology",
+    "@type": "owl:Ontology",
     "dcterms:title": "Vocabulary for the Terse JSON-LD API.",
     "rdfs:seeAlso": { "@id": "https://zenomt.github.io/jsonld-terse/api.html" },
 
@@ -130,6 +131,7 @@
         {
             "@id": "api:action",
             "@type": "rdfs:Property",
+            "owl:inverseOf": { "@id": "api:target" },
             "rdfs:domain": { "@id": "rdfs:Resource" },
             "rdfs:range": { "@id": "api:Action" },
             "rdfs:comment": "An HTTP POST to the object's URI invokes the action indicated by the concrete sub-property's rdfs:range on, or in the context of, the subject. Concrete sub-properties define the specific action semantics, and constraints or expectations on the POST request, if any."
@@ -141,6 +143,14 @@
             "rdfs:domain": { "@id": "rdfs:Resource" },
             "rdfs:range": { "@id": "api:Action" },
             "rdfs:comment": "An HTTP POST to the object's URI invokes the idempotent action indicated by the concrete sub-property's rdfs:range on, or in the context of, the subject. Concrete sub-properties define the specific action semantics, and constraints or expectations on the POST request, if any."
+        },
+        {
+            "@id": "api:target",
+            "@type": "rdfs:Property",
+            "owl:inverseOf": { "@id": "api:action" },
+            "rdfs:domain": { "@id": "api:Action" },
+            "rdfs:range": { "@id": "rdfs:Resource" },
+            "rdfs:comment": "The resource on which the Action acts."
         }
     ]
 }
