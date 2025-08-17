@@ -41,20 +41,20 @@ for JSON-LD, as well as additional semantics. This derived profile is identified
 by the URI
 [`http://zenomt.com/ns/terse-api`][TERSE-API], and it is signaled in `Content-Type`
 and other places by adding its URI to the `profile` parameter of the Terse
-JSON-LD media-type:
+JSON-LD [media type](https://www.rfc-editor.org/rfc/rfc9110.html#name-media-type):
 
 > `application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"`
 
 Requests and responses **SHOULD** use
 [`Accept`](https://www.rfc-editor.org/rfc/rfc9110.html#name-accept)
-with that media-type where appropriate to indicate support of this API.
+with that media type where appropriate to indicate support of this API.
 
 Normal RESTful use of standard HTTP methods:
 * [`OPTIONS`](https://www.rfc-editor.org/rfc/rfc9110.html#name-options)
 * [`HEAD`](https://www.rfc-editor.org/rfc/rfc9110.html#name-head)
 * [`GET`](https://www.rfc-editor.org/rfc/rfc9110.html#name-get)
 * [`QUERY`][QUERY]
-  - Query body media-type is application and resource specific
+  - Query body media type is application and resource specific
   - `Accept-Query` response header **SHOULD** be provided when supported
 * [`POST`](https://www.rfc-editor.org/rfc/rfc9110.html#name-post)
   - Create a new item in a [container](#containers)
