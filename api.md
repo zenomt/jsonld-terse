@@ -462,6 +462,12 @@ indicated by the semantics of the predicate on, or in the context of, the
 subject. Actions are intended to fill the gap where the standard, generic
 HTTP methods are inadequate to the desired processing semantics, or to convey
 the currently available state transitions of a resource via hypermedia controls.
+Clients **SHOULD NOT** invoke an Action unless the semantics and expected
+effects on the bound subject resource are understood.
+
+To aid generic clients in recognizing an Action without additional retrievals
+or inferencing, servers **SHOULD** materialize at least an `api:Action` type
+on the target URL.
 
 Consider an example “Store” ontology that describes cancelable orders:
 
@@ -514,6 +520,7 @@ An example order that is still cancelable at the time of retrieval:
 
     {
         "@context": {
+            "api": "http://zenomt.com/ns/terse-api#",
             "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
             "store": "http://example.com/ns/store#",
             "schema": "https://schema.org/"
@@ -522,14 +529,14 @@ An example order that is still cancelable at the time of retrieval:
         "@type": "store:Order",
         "rdfs:comment": "Open order 1234",
         "schema:orderStatus": { "@id": "schema:OrderProcessing" },
-        "store:cancel": { "@id": "/orders/1234/cancel/4DEC82DE" }
+        "store:cancel": { "@id": "/orders/1234/cancel/4DEC82DE", "@type": [ "store:Cancel", "api:Action" ] }
     }
 
-The `store:cancel` property above asserts that the action target
-`/orders/1234/cancel/4DEC82DE` is _bound_ to the order resource `/orders/1234`,
-and that a `POST` to that action target will cancel this order. The client
-application is expected to understand the semantics of the `store:cancel`
-property to use it.
+The `store:cancel` property above, being a sub-property of `api:idempotentAction`,
+asserts that the action target `/orders/1234/cancel/4DEC82DE` is _bound_ to
+the order resource `/orders/1234`, and that a `POST` to that action target
+will cancel this order. The client is expected to understand the semantics
+of the `store:cancel` property to use it.
 
 To attempt to cancel this order as long as it’s in the same state as shown
 above, perform a conditional HTTP `POST` to the `store:cancel` target URL:
@@ -580,14 +587,14 @@ above, perform a conditional HTTP `POST` to the `store:cancel` target URL:
         "rdfs:comment": "Canceled order 1234"
     }
 
-Notice that the representation of the new state of the order doesn’t include
-a `store:cancel` property anymore, because that action is no longer available.
-Notice also that the response to the `POST` request
+Notice that the response to the `POST` request
 [indicates via the `Location` header](https://www.rfc-editor.org/rfc/rfc9111.html#section-4.4-3)
 that any cached representation of the order resource should be invalidated,
 and advises the application via an `api:etag` claim in the response metadata
 graph of an updated `ETag` for the new state of the order resource, so an
-intervening modification could be detected.
+intervening modification could be detected. Notice also that the representation
+of the new state of the order doesn’t include a `store:cancel` property
+anymore, because that action is no longer available.
 
 Note that an action target URL isn’t required to be at a sub-path of its bound
 subject; however, an action target URL **SHOULD** be in the same origin as
