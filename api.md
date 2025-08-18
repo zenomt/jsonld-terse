@@ -603,9 +603,9 @@ of the new state of the order doesn’t include a `store:cancel` property
 anymore, because that Action is no longer available.
 
 Note that an Action URL isn’t required to be at a sub-path of its bound target
-(although authoritative statements about the Action can be made in the graph
-of the bound target if it is); however, an Action URL **SHOULD** be in the
-same origin as its bound target for the reasons discussed in
+(although authoritative statements about the Action can be included in the
+graph of the bound target if it is); however, an Action URL **SHOULD** be in
+the same origin as its bound target for the reasons discussed in
 [Security and Privacy Considerations](#security-and-privacy-considerations)
 and
 [HTTP Cache Invalidation](https://www.rfc-editor.org/rfc/rfc9111.html#name-invalidating-stored-respons),
