@@ -573,6 +573,7 @@ above, perform a conditional HTTP `POST` to the `store:cancel` object URL:
 
     GET /orders/1234 HTTP/1.1
     Host: store.example.com
+    Cache-control: no-cache
     Accept: application/ld+json; profile="http://zenomt.com/ns/jsonld-terse http://zenomt.com/ns/terse-api"
 
 
