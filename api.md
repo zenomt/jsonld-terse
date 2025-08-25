@@ -456,19 +456,19 @@ new state of the resource.
 Actions
 -------
 An _action-binding triple_ is a triple whose predicate is a sub-property of
-`api:action` or `api:idempotentAction`. An _Action_ is the object URL of an
-action-binding triple that, when `POST`ed to, invokes the functional process
-indicated by the semantics of the predicate on, or in the context of, the
-triple’s subject (the Action’s _target resource_). Actions are intended to
-fill the gap where the standard, generic HTTP methods are inadequate to the
-desired processing semantics, or to convey the currently available state
-transitions of a resource via hypermedia controls. Clients **SHOULD NOT**
-invoke an Action unless the semantics and expected effects on the bound target
-resource are understood.
+`api:action`. An _Action_ is the object URL of an action-binding triple that,
+when `POST`ed to, invokes the functional process indicated by the semantics
+of the predicate on, or in the context of, the triple’s subject (the Action’s
+_target resource_). Actions are intended to fill the gap where the standard,
+generic HTTP methods are inadequate to the desired processing semantics, or
+to convey the currently available state transitions of a resource via hypermedia
+controls. Clients **SHOULD NOT** invoke an Action unless the semantics and
+expected effects on the bound target resource are understood.
 
 To aid simple generic clients in recognizing an Action without inferencing,
-servers **SHOULD** include in the Action’s graph a materialized `api:Action`
-type and an `api:target` link to the Action’s bound target resource.
+servers **SHOULD** include in the Action’s graph at least a materialized
+`api:Action` type and an `api:target` link to the Action’s bound target
+resource.
 
 Consider an example “Store” ontology that describes cancelable orders:
 
@@ -493,16 +493,16 @@ Consider an example “Store” ontology that describes cancelable orders:
             {
                 "@id": "store:Cancel",
                 "@type": "rdfs:Class",
-                "rdfs:subClassOf": { "@id": "api:Action" },
-                "rdfs:comment": "The class of actions that cancel Orders."
+                "rdfs:subClassOf": { "@id": "api:IdempotentAction" },
+                "rdfs:comment": "The class of actions that cancel Orders. The POST request body can include an rdfs:comment explaining why the order is being canceled."
             },
             {
                 "@id": "store:cancel",
                 "@type": "rdfs:Property",
-                "rdfs:subPropertyOf": { "@id": "api:idempotentAction" },
+                "rdfs:subPropertyOf": { "@id": "api:action" },
                 "rdfs:domain": { "@id": "store:Order" },
                 "rdfs:range" : { "@id": "store:Cancel" },
-                "rdfs:comment": "An HTTP POST to my object's URL cancels the order identified by my subject. The request body can include a comment explaining why the order is being canceled."
+                "rdfs:comment": "An HTTP POST to my object's URL cancels the order identified by my subject."
             }
         ]
     }
@@ -532,13 +532,13 @@ An example order that is still cancelable at the time of retrieval:
         "schema:orderStatus": { "@id": "schema:OrderProcessing" },
         "store:cancel": {
             "@id": "/orders/1234/cancel/4DEC82DE",
-            "@type": [ "store:Cancel", "api:Action" ],
+            "@type": [ "store:Cancel", "api:IdempotentAction", "api:Action" ],
             "rdfs:comment": "Cancel order 1234",
             "api:target": { "@id": "" }
         }
     }
 
-The `store:cancel` property above, being a sub-property of `api:idempotentAction`,
+The `store:cancel` property above, being a sub-property of `api:action`,
 asserts that the Action URL `/orders/1234/cancel/4DEC82DE` is _bound_ to the
 order resource `/orders/1234`, and that a `POST` to that Action URL will
 cancel this order. The client is expected to understand the semantics of the
